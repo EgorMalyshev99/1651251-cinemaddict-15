@@ -1,6 +1,6 @@
-import {
+const {
   createComponent
-} from "../main";
+} = require("../utils/create-component");
 
 const mainWrap = document.querySelector('.main');
 const mainNav = document.createElement('nav');

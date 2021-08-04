@@ -1,9 +1,3 @@
-export const createComponent = (wrap, content, point) => {
-  if (point === 'start') {
-    wrap.prepend(content);
-  }
+import './view/menu.js';
 
-  if (point === 'end') {
-    wrap.append(content);
-  }
-}
+export const main = document.querySelector('.main');

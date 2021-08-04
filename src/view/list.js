@@ -1,5 +1,9 @@
-// import {
+// const {
+//   main
+// } = require("../main");
+// const {
 //   createComponent
-// } from "../main";
+// } = require("../utils/create-component");
 
-// createComponent();
+
+// createComponent(main, );

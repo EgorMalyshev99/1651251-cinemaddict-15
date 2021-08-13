@@ -1,9 +1,4 @@
 import {
-  MAINFILMSCOUNT,
-  MOSTCOMMENTEDFILMSCOUNT,
-  TOPRATEDFILMSCOUNT
-} from './data.js';
-import {
   createComponent
 } from './utils/create-component.js';
 import {
@@ -12,9 +7,6 @@ import {
 import {
   filmsCount
 } from './view/footer.js';
-import {
-  extraList
-} from './view/list-item-extra.js';
 import {
   filmsListItem
 } from './view/list-item.js';
@@ -37,6 +29,9 @@ import {
   stats
 } from './view/stats.js';
 
+const MAIN_FILMS_COUNT = 5;
+const OTHER_FILMS_COUNT = 2;
+
 const body = document.querySelector('body');
 const header = document.querySelector('.header');
 const main = document.querySelector('.main');
@@ -53,32 +48,24 @@ createComponent(main, filmsList, 'beforeend'); // Список фильмов
 createComponent(footerStats, filmsCount, 'beforeend'); // Количество фильмов
 
 const listsWrap = document.querySelector('.films');
-createComponent(listsWrap, filmsListItem, 'afterbegin'); // Главный список
+createComponent(listsWrap, filmsListItem('All movies. Upcoming'), 'afterbegin'); // Главный список
 
 const mainList = document.querySelector('.films-list');
 createComponent(mainList, moreBtn, 'beforeend'); // Добавляем кнопку "Показать еще" в главный список
 
-createComponent(listsWrap, extraList, 'beforeend'); // Cписок "Top rated"
-createComponent(listsWrap, extraList, 'beforeend'); // Список "Most commented"
-const extraListsTitles = document.querySelectorAll('.films-list--extra .films-list__title');
-
-extraListsTitles[0].innerText = 'Top rated';
-extraListsTitles[1].innerText = 'Most commented';
+createComponent(listsWrap, filmsListItem('Top rated'), 'beforeend'); // Cписок "Top rated"
+createComponent(listsWrap, filmsListItem('Most commented'), 'beforeend'); // Список "Most commented"
 
 const filmsListsContainers = document.querySelectorAll('.films-list__container');
 
 // Отрисовка 5 карточек фильмов в главный список
-for (let index = 1; index <= MAINFILMSCOUNT; index++) {
+for (let index = 1; index <= MAIN_FILMS_COUNT; index++) {
   createComponent(filmsListsContainers[0], filmCard, 'beforeend');
 }
 
-// Отрисовка 2 карточек фильмов в списке "Top rated"
-for (let index = 1; index <= TOPRATEDFILMSCOUNT; index++) {
+// Отрисовка 2 карточек фильмов в списке "Top rated" и "Most commented"
+for (let index = 1; index <= OTHER_FILMS_COUNT; index++) {
   createComponent(filmsListsContainers[1], filmCard, 'beforeend');
-}
-
-// Отрисовка 2 карточек фильмов в списке "Most commented"
-for (let index = 1; index <= MOSTCOMMENTEDFILMSCOUNT; index++) {
   createComponent(filmsListsContainers[2], filmCard, 'beforeend');
 }
 

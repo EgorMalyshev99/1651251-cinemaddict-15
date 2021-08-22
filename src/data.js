@@ -1,3 +1,9 @@
+const LIST_TITLES = {
+  all: 'All movies. Upcoming',
+  top: 'Top rated',
+  comment: 'Most commented',
+};
+
 const FILM_NAMES = [
   'The Lord of the Rings',
   'Pirates of the Caribbean',
@@ -109,7 +115,15 @@ const COUNTRY = [
   'Germany',
 ];
 
+const PASTE_POINTS = {
+  beforeBegin: 'beforebegin',
+  afterBegin: 'afterbegin',
+  beforeEnd: 'beforeend',
+  afterEnd: 'afterEnd,',
+};
+
 export {
+  LIST_TITLES,
   FILM_NAMES,
   POSTER_PATHS,
   DESCRIPTIONS,
@@ -121,5 +135,6 @@ export {
   DIRECTORS,
   COUNTRY,
   WRITERS,
-  ACTORS
+  ACTORS,
+  PASTE_POINTS
 };

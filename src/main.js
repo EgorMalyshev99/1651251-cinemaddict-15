@@ -1,4 +1,8 @@
 import {
+  LIST_TITLES,
+  PASTE_POINTS
+} from './data.js';
+import {
   generateFilm
 } from './mock/film.js';
 import {
@@ -38,6 +42,7 @@ import {
 const FILMS_COUNT_PER_STEP = 5;
 const OTHER_FILMS_COUNT = 2;
 const NUMBER_OF_FILMS = 20;
+
 const films = new Array(NUMBER_OF_FILMS).fill().map(generateFilm);
 
 const body = document.querySelector('body');
@@ -67,46 +72,50 @@ const filterStats = {
   favorites: favoritesFilmsCount,
 };
 
-createComponent(header, stats, 'beforeend'); // Имя профиля
+const {
+  afterBegin,
+} = PASTE_POINTS;
 
-createComponent(main, createMainNav(filterStats), 'afterbegin'); // Отрисовка меню
+createComponent(header, stats); // Имя профиля
 
-createComponent(main, createSort(), 'beforeend'); // Сортировка
+createComponent(main, createMainNav(filterStats), afterBegin); // Отрисовка меню
 
-createComponent(main, filmsList, 'beforeend'); // Список фильмов
+createComponent(main, createSort()); // Сортировка
 
-createComponent(footerStats, filmsCount(films.length), 'beforeend'); // Количество фильмов
+createComponent(main, filmsList); // Список фильмов
+
+createComponent(footerStats, filmsCount(films.length)); // Количество фильмов
 
 const listsWrap = document.querySelector('.films');
-createComponent(listsWrap, filmsListItem('All movies. Upcoming'), 'afterbegin'); // Главный список
+createComponent(listsWrap, filmsListItem(LIST_TITLES.all), afterBegin); // Главный список
 
-createComponent(listsWrap, filmsListItem('Top rated'), 'beforeend'); // Cписок "Top rated"
-createComponent(listsWrap, filmsListItem('Most commented'), 'beforeend'); // Список "Most commented"
+createComponent(listsWrap, filmsListItem(LIST_TITLES.top)); // Cписок "Top rated"
+createComponent(listsWrap, filmsListItem(LIST_TITLES.comment)); // Список "Most commented"
 
 const filmsListsContainers = document.querySelectorAll('.films-list__container');
 
 // Отрисовка попапов с информацией о фильме
 films.forEach((film) => {
-  createComponent(body, createPopup(film), 'beforeend');
+  createComponent(body, createPopup(film));
 });
 
 // Отрисовка комментариев
 const commentsWraps = document.querySelectorAll('.film-details__comments-list');
 commentsWraps.forEach((wrap, index) => {
   films[index].comments.forEach((comment) => {
-    createComponent(wrap, createComment(comment), 'beforeend');
+    createComponent(wrap, createComment(comment));
   });
 });
 
 // Отрисовка всех фильмов
 for (let i = 0; i < Math.min(films.length, FILMS_COUNT_PER_STEP); i++) {
-  createComponent(filmsListsContainers[0], createFilmCard(films[i]), 'beforeend');
+  createComponent(filmsListsContainers[0], createFilmCard(films[i]));
 }
 
 // Отрисовка 2 карточек фильмов в списке "Top rated" и "Most commented"
 for (let i = 0; i < OTHER_FILMS_COUNT; i++) {
-  createComponent(filmsListsContainers[1], createFilmCard(films[i + 5]), 'beforeend');
-  createComponent(filmsListsContainers[2], createFilmCard(films[i + 10]), 'beforeend');
+  createComponent(filmsListsContainers[1], createFilmCard(films[i + 5]));
+  createComponent(filmsListsContainers[2], createFilmCard(films[i + 10]));
 }
 
 // Логика кнопки "Показать ещё"
@@ -114,7 +123,7 @@ const mainList = document.querySelectorAll('.films-list')[0];
 if (films.length > FILMS_COUNT_PER_STEP) {
   let renderedTaskCount = FILMS_COUNT_PER_STEP;
 
-  createComponent(mainList, moreBtn, 'beforeend'); // Добавляем кнопку "Показать еще" в главный список
+  createComponent(mainList, moreBtn); // Добавляем кнопку "Показать еще" в главный список
 
   const loadMoreButton = mainList.querySelector('.films-list__show-more');
 
@@ -122,7 +131,7 @@ if (films.length > FILMS_COUNT_PER_STEP) {
     evt.preventDefault();
     films
       .slice(renderedTaskCount, renderedTaskCount + FILMS_COUNT_PER_STEP)
-      .forEach((film) => createComponent(filmsListsContainers[0], createFilmCard(film), 'beforeend'));
+      .forEach((film) => createComponent(filmsListsContainers[0], createFilmCard(film)));
 
     renderedTaskCount += FILMS_COUNT_PER_STEP;
 
@@ -131,3 +140,41 @@ if (films.length > FILMS_COUNT_PER_STEP) {
     }
   });
 }
+
+// Раскрытие попапа
+const popups = document.querySelectorAll('.film-details');
+const closePopupBtns = document.querySelectorAll('.film-details__close-btn');
+const titles = document.querySelectorAll('.film-card__title');
+const posters = document.querySelectorAll('.film-card__poster');
+const commentsBtns = document.querySelectorAll('.film-card__comments');
+
+closePopupBtns.forEach((btn, index) => {
+  btn.addEventListener('click', () => {
+    popups[index].classList.add('visually-hidden');
+  });
+});
+
+titles.forEach((title, index) => {
+  title.style.cursor = 'pointer';
+  title.addEventListener('click', () => {
+    popups[index].classList.remove('visually-hidden');
+  });
+});
+
+posters.forEach((poster, index) => {
+  poster.style.cursor = 'pointer';
+  poster.addEventListener('click', () => {
+    popups[index].classList.remove('visually-hidden');
+  });
+});
+
+commentsBtns.forEach((btn, index) => {
+  btn.addEventListener('click', () => {
+    popups[index].classList.remove('visually-hidden');
+  });
+});
+
+// Экспорт
+export {
+  PASTE_POINTS
+};

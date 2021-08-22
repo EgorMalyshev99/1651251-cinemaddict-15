@@ -1,6 +1,4 @@
-export const createPopup = (film) => {
-
-  const markup = `
+export const createPopup = (film) => `
     <section class="film-details visually-hidden">
       <form class="film-details__inner" action="" method="get">
         <div class="film-details__top-container">
@@ -115,7 +113,4 @@ export const createPopup = (film) => {
         </div>
       </form>
     </section>
-  `;
-
-  return markup;
-};
+`;

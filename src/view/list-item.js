@@ -1,18 +1,18 @@
 export const filmsListItem = (heading) => {
-  let extraClass;
+  let classExtra;
+  let classHidden;
 
   if (heading === 'All movies. Upcoming') {
-    extraClass = '';
+    classExtra = '';
+    classHidden = 'visually-hidden';
   } else {
-    extraClass = 'films-list--extra';
+    classExtra = 'films-list--extra';
   }
 
-  const markup = `
-    <section class="films-list ${extraClass}">
-      <h2 class="films-list__title">${heading}</h2>
+  return `
+    <section class="films-list ${classExtra}">
+      <h2 class="films-list__title ${classHidden}">${heading}</h2>
       <div class="films-list__container"></div>
     </section>
   `;
-
-  return markup;
 };

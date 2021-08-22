@@ -1,7 +1,3 @@
-export const filmsCount = (count) => {
-  const markup = `
+export const filmsCount = (count) => `
     <p>${count} movies inside</p>
   `;
-
-  return markup;
-};

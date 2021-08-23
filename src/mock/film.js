@@ -43,23 +43,19 @@ const generateDateOfRelease = () => {
   const year = dayjs().subtract(yearsGap, 'year').format('YYYY');
   const month = dayjs().format('MMMM');
   const day = dayjs().format('DD');
-  const currentDate = dayjs().format('DD MMMM YYYY');
+  const fullDate = `${day} ${month} ${year}`;
 
   const date = {
-    year: year,
-    mounth: month,
-    day: day,
-    fullDate: currentDate,
+    year,
+    month,
+    day,
+    fullDate,
   };
 
   return date;
 };
 
-const generateFilmDuration = () => {
-  const duration = `${getRandomInteger(1,2)}h ${getRandomInteger(0, 60)}m`;
-
-  return duration;
-};
+const generateFilmDuration = () => `${getRandomInteger(1,2)}h ${getRandomInteger(0, 60)}m`;
 
 const createComment = () => {
   const comment = {
@@ -73,12 +69,8 @@ const createComment = () => {
 };
 
 const generateComments = () => {
-  const comments = [];
   const commentsCount = getRandomInteger(MIN_COMMENTS, MAX_COMMENTS);
-
-  for (let index = 1; index <= commentsCount; index++) {
-    comments.push(createComment());
-  }
+  const comments = new Array(commentsCount).fill().map(createComment);
 
   const commentsData = {
     comments: comments,
@@ -92,6 +84,7 @@ export const generateFilm = () => {
   const currentComments = generateComments();
   const film = {
     name: getRandomItem(FILM_NAMES),
+    altName: getRandomItem(FILM_NAMES),
     poster: getRandomItem(POSTER_PATHS),
     description: getRandomItem(DESCRIPTIONS),
     comments: currentComments.comments,

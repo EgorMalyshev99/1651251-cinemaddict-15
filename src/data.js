@@ -115,13 +115,6 @@ const COUNTRY = [
   'Germany',
 ];
 
-const PASTE_POINTS = {
-  beforeBegin: 'beforebegin',
-  afterBegin: 'afterbegin',
-  beforeEnd: 'beforeend',
-  afterEnd: 'afterEnd,',
-};
-
 export {
   LIST_TITLES,
   FILM_NAMES,
@@ -135,6 +128,5 @@ export {
   DIRECTORS,
   COUNTRY,
   WRITERS,
-  ACTORS,
-  PASTE_POINTS
+  ACTORS
 };

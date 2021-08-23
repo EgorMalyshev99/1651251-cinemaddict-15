@@ -1,12 +1,10 @@
-import {
-  PASTE_POINTS
-} from '../data';
+export const PASTE_POINTS = {
+  beforeBegin: 'beforebegin',
+  afterBegin: 'afterbegin',
+  beforeEnd: 'beforeend',
+  afterEnd: 'afterEnd,',
+};
 
-const {
-  beforeEnd,
-} = PASTE_POINTS;
-
-
-export const createComponent = (wrap, content, point = beforeEnd) => {
+export const createComponent = (wrap, content, point = PASTE_POINTS.beforeEnd) => {
   wrap.insertAdjacentHTML(point, content);
 };

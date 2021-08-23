@@ -1,13 +1,16 @@
 import {
-  LIST_TITLES,
-  PASTE_POINTS
+  LIST_TITLES
 } from './data.js';
 import {
   generateFilm
 } from './mock/film.js';
 import {
-  createComponent
+  createComponent,
+  PASTE_POINTS
 } from './utils/create-component.js';
+import {
+  addVisibleLogicToElements
+} from './utils/visible-on.js';
 import {
   createComment
 } from './view/comment.js';
@@ -50,35 +53,14 @@ const header = document.querySelector('.header');
 const main = document.querySelector('.main');
 const footerStats = document.querySelector('.footer__statistics');
 
-let watchListFilmsCount = 0;
-let historyFilmsCount = 0;
-let favoritesFilmsCount = 0;
-
-films.forEach((film) => {
-  if (film.status.isWatchList) {
-    watchListFilmsCount++;
-  }
-  if (film.status.isHistory) {
-    historyFilmsCount++;
-  }
-  if (film.status.isFavorite) {
-    favoritesFilmsCount++;
-  }
-});
-
-const filterStats = {
-  watchList: watchListFilmsCount,
-  history: historyFilmsCount,
-  favorites: favoritesFilmsCount,
-};
-
 const {
   afterBegin,
 } = PASTE_POINTS;
 
 createComponent(header, stats); // Имя профиля
 
-createComponent(main, createMainNav(filterStats), afterBegin); // Отрисовка меню
+createComponent(main, createMainNav(films), afterBegin); // Отрисовка меню
+
 
 createComponent(main, createSort()); // Сортировка
 
@@ -118,6 +100,23 @@ for (let i = 0; i < OTHER_FILMS_COUNT; i++) {
   createComponent(filmsListsContainers[2], createFilmCard(films[i + 10]));
 }
 
+// Раскрытие попапа
+const popups = document.querySelectorAll('.film-details');
+const closePopupBtns = document.querySelectorAll('.film-details__close-btn');
+let titles = document.querySelectorAll('.film-card__title');
+let posters = document.querySelectorAll('.film-card__poster');
+let commentsBtns = document.querySelectorAll('.film-card__comments');
+
+closePopupBtns.forEach((btn, index) => {
+  btn.addEventListener('click', () => {
+    popups[index].classList.add('visually-hidden');
+  });
+});
+
+addVisibleLogicToElements(titles, popups);
+addVisibleLogicToElements(posters, popups);
+addVisibleLogicToElements(commentsBtns, popups);
+
 // Логика кнопки "Показать ещё"
 const mainList = document.querySelectorAll('.films-list')[0];
 if (films.length > FILMS_COUNT_PER_STEP) {
@@ -138,43 +137,12 @@ if (films.length > FILMS_COUNT_PER_STEP) {
     if (renderedTaskCount >= films.length) {
       loadMoreButton.remove();
     }
+
+    titles = document.querySelectorAll('.film-card__title');
+    posters = document.querySelectorAll('.film-card__poster');
+    commentsBtns = document.querySelectorAll('.film-card__comments');
+    addVisibleLogicToElements(titles, popups);
+    addVisibleLogicToElements(posters, popups);
+    addVisibleLogicToElements(commentsBtns, popups);
   });
 }
-
-// Раскрытие попапа
-const popups = document.querySelectorAll('.film-details');
-const closePopupBtns = document.querySelectorAll('.film-details__close-btn');
-const titles = document.querySelectorAll('.film-card__title');
-const posters = document.querySelectorAll('.film-card__poster');
-const commentsBtns = document.querySelectorAll('.film-card__comments');
-
-closePopupBtns.forEach((btn, index) => {
-  btn.addEventListener('click', () => {
-    popups[index].classList.add('visually-hidden');
-  });
-});
-
-titles.forEach((title, index) => {
-  title.style.cursor = 'pointer';
-  title.addEventListener('click', () => {
-    popups[index].classList.remove('visually-hidden');
-  });
-});
-
-posters.forEach((poster, index) => {
-  poster.style.cursor = 'pointer';
-  poster.addEventListener('click', () => {
-    popups[index].classList.remove('visually-hidden');
-  });
-});
-
-commentsBtns.forEach((btn, index) => {
-  btn.addEventListener('click', () => {
-    popups[index].classList.remove('visually-hidden');
-  });
-});
-
-// Экспорт
-export {
-  PASTE_POINTS
-};

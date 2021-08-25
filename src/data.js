@@ -1,9 +1,3 @@
-const LIST_TITLES = {
-  all: 'All movies. Upcoming',
-  top: 'Top rated',
-  comment: 'Most commented',
-};
-
 const FILM_NAMES = [
   'The Lord of the Rings',
   'Pirates of the Caribbean',
@@ -115,8 +109,14 @@ const COUNTRY = [
   'Germany',
 ];
 
+const listTitles = {
+  all: 'All movies. Upcoming',
+  top: 'Top rated',
+  comment: 'Most commented',
+};
+
 export {
-  LIST_TITLES,
+  listTitles,
   FILM_NAMES,
   POSTER_PATHS,
   DESCRIPTIONS,

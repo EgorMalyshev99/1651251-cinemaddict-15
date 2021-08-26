@@ -46,7 +46,7 @@ import {
 } from './view/stats.js';
 
 const FILMS_COUNT_PER_STEP = 5;
-const OTHER_FILMS_COUNT = 2;
+// const OTHER_FILMS_COUNT = 2;
 const NUMBER_OF_FILMS = 20;
 
 const films = new Array(NUMBER_OF_FILMS).fill().map(generateFilm);
@@ -73,8 +73,8 @@ createComponent(footerStats, filmsCount(films.length)); // Количество 
 const listsWrap = document.querySelector('.films');
 createComponent(listsWrap, filmsListItem(listTitles.all), afterBegin); // Главный список
 
-createComponent(listsWrap, filmsListItem(listTitles.top)); // Cписок "Top rated"
-createComponent(listsWrap, filmsListItem(listTitles.comment)); // Список "Most commented"
+// createComponent(listsWrap, filmsListItem(listTitles.top)); // Cписок "Top rated"
+// createComponent(listsWrap, filmsListItem(listTitles.comment)); // Список "Most commented"
 
 const filmsListsContainers = document.querySelectorAll('.films-list__container');
 
@@ -96,6 +96,13 @@ const renderCards = (elements, count, place) => {
     createComponent(body, createPopup(elements[i]));
     const popups = document.querySelectorAll('.film-details');
     const currentPopup = popups[popups.length - 1];
+
+    // Отрисовка комментариев
+    const commentsWraps = document.querySelectorAll('.film-details__comments-list');
+    const currentCommentWrap = commentsWraps[commentsWraps.length - 1];
+    elements[i].comments.forEach((comment) => {
+      createComponent(currentCommentWrap, createComment(comment));
+    });
 
     const showPopupHandler = () => {
       currentPopup.classList.remove('visually-hidden');
@@ -119,19 +126,11 @@ const renderCards = (elements, count, place) => {
 renderCards(films, FILMS_COUNT_PER_STEP, filmsListsContainers[0]);
 
 // Отрисовка 2 карточек фильмов в списке "Top rated" и "Most commented"
-const mockTopRatedFilms = getSomeItems(films, 5);
-const mockMostCommentedFilms = getSomeItems(films, 5);
+// const mockTopRatedFilms = getSomeItems(films, 5);
+// const mockMostCommentedFilms = getSomeItems(films, 5);
 
-renderCards(mockTopRatedFilms, OTHER_FILMS_COUNT, filmsListsContainers[1]);
-renderCards(mockMostCommentedFilms, OTHER_FILMS_COUNT, filmsListsContainers[2]);
-
-// Отрисовка комментариев
-const commentsWraps = document.querySelectorAll('.film-details__comments-list');
-commentsWraps.forEach((wrap, index) => {
-  films[index].comments.forEach((comment) => {
-    createComponent(wrap, createComment(comment));
-  });
-});
+// renderCards(mockTopRatedFilms, OTHER_FILMS_COUNT, filmsListsContainers[1]);
+// renderCards(mockMostCommentedFilms, OTHER_FILMS_COUNT, filmsListsContainers[2]);
 
 // Логика кнопки "Показать ещё"
 const mainList = document.querySelectorAll('.films-list')[0];
@@ -145,9 +144,9 @@ if (films.length > FILMS_COUNT_PER_STEP) {
   loadMoreButton.addEventListener('click', (evt) => {
     evt.preventDefault();
     // films
-    //   .slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP)
-    //   .forEach((film) => createComponent(filmsListsContainers[0], createFilmCard(film)));
-
+    //  .slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP)
+    //  .forEach((film) => createComponent(filmsListsContainers[0], createFilmCard(film)));
+    renderCards(films.slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP), FILMS_COUNT_PER_STEP, filmsListsContainers[0]);
     renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
     if (renderedFilmsCount >= films.length) {

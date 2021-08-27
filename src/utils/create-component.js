@@ -1,10 +1,10 @@
 export const pastePoints = {
-  beforeBegin: 'beforebegin',
-  afterBegin: 'afterbegin',
-  beforeEnd: 'beforeend',
-  afterEnd: 'afterEnd,',
+  BEFOREBEGIN: 'beforebegin',
+  AFTERBEGIN: 'afterbegin',
+  BEFOREEND: 'beforeend',
+  AFTEREND: 'afterEnd,',
 };
 
-export const createComponent = (wrap, content, point = pastePoints.beforeEnd) => {
+export const createComponent = (wrap, content, point = pastePoints.BEFOREEND) => {
   wrap.insertAdjacentHTML(point, content);
 };

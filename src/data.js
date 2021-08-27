@@ -110,9 +110,9 @@ const COUNTRY = [
 ];
 
 const listTitles = {
-  all: 'All movies. Upcoming',
-  top: 'Top rated',
-  comment: 'Most commented',
+  ALL: 'All movies. Upcoming',
+  TOP: 'Top rated',
+  COMMENT: 'Most commented',
 };
 
 export {

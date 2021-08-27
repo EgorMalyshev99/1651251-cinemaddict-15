@@ -54,12 +54,12 @@ const main = document.querySelector('.main');
 const footerStats = document.querySelector('.footer__statistics');
 
 const {
-  afterBegin,
+  AFTERBEGIN,
 } = pastePoints;
 
 createComponent(header, stats); // Имя профиля
 
-createComponent(main, createMainNav(films), afterBegin); // Отрисовка меню
+createComponent(main, createMainNav(films), AFTERBEGIN); // Отрисовка меню
 
 createComponent(main, createSort()); // Сортировка
 
@@ -68,7 +68,7 @@ createComponent(main, filmsList); // Список фильмов
 createComponent(footerStats, filmsCount(films.length)); // Количество фильмов
 
 const listsWrap = document.querySelector('.films');
-createComponent(listsWrap, filmsListItem(listTitles.all), afterBegin); // Главный список
+createComponent(listsWrap, filmsListItem(listTitles.all), AFTERBEGIN); // Главный список
 
 // createComponent(listsWrap, filmsListItem(listTitles.top)); // Cписок "Top rated"
 // createComponent(listsWrap, filmsListItem(listTitles.comment)); // Список "Most commented"

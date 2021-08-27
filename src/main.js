@@ -5,15 +5,12 @@ import {
   generateFilm
 } from './mock/film.js';
 import {
+  isEscEvent
+} from './utils/check-events.js';
+import {
   createComponent,
   pastePoints
 } from './utils/create-component.js';
-import {
-  getSomeItems
-} from './utils/get-some-items.js';
-import {
-  addVisibleLogicToElements
-} from './utils/visible-on.js';
 import {
   createComment
 } from './view/comment.js';
@@ -79,6 +76,8 @@ createComponent(listsWrap, filmsListItem(listTitles.all), afterBegin); // Гла
 const filmsListsContainers = document.querySelectorAll('.films-list__container');
 
 const renderCards = (elements, count, place) => {
+  let commentsWraps = new Array;
+  const currentCommentWraps = new Array;
 
   for (let i = 0; i < Math.min(elements.length, count); i++) {
     let cards = new Array;
@@ -97,21 +96,30 @@ const renderCards = (elements, count, place) => {
     const popups = document.querySelectorAll('.film-details');
     const currentPopup = popups[popups.length - 1];
 
-    // Отрисовка комментариев
-    const commentsWraps = document.querySelectorAll('.film-details__comments-list');
-    const currentCommentWrap = commentsWraps[commentsWraps.length - 1];
-    elements[i].comments.forEach((comment) => {
-      createComponent(currentCommentWrap, createComment(comment));
-    });
+    commentsWraps = document.querySelectorAll('.film-details__comments-list');
+    currentCommentWraps.push(commentsWraps[commentsWraps.length - 1]);
 
     const showPopupHandler = () => {
       currentPopup.classList.remove('visually-hidden');
+      // Отрисовка комментариев
+      if (!currentCommentWraps[i].hasChildNodes()) {
+        elements[i].comments.forEach((comment) => {
+          createComponent(currentCommentWraps[i], createComment(comment));
+        });
+      }
       const closePopupBtn = currentPopup.querySelector('.film-details__close-btn');
       const closePopupHandler = () => {
         currentPopup.classList.add('visually-hidden');
         closePopupBtn.removeEventListener('click', closePopupHandler);
       };
+      const escPopupHandler = (event) => {
+        if (isEscEvent(event)) {
+          currentPopup.classList.add('visually-hidden');
+          document.removeEventListener('keydown', escPopupHandler);
+        }
+      };
       closePopupBtn.addEventListener('click', closePopupHandler);
+      document.addEventListener('keydown', escPopupHandler);
     };
 
     // Добавляем листенеры

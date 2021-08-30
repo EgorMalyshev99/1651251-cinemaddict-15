@@ -1,6 +1,32 @@
-export const filmsListItem = (heading) => `
+import {
+  createElement
+} from '../utils/create-component';
+
+const createFilmsListItem = (heading) => `
   <section class="films-list">
     <h2 class="films-list__title visually-hidden">${heading}</h2>
     <div class="films-list__container"></div>
   </section>
 `;
+
+export default class FilmsListItem {
+  constructor() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmsListItem();
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

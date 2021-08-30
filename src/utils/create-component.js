@@ -1,10 +1,26 @@
-export const pastePoints = {
-  BEFOREBEGIN: 'beforebegin',
+export const RenderPoints = {
   AFTERBEGIN: 'afterbegin',
   BEFOREEND: 'beforeend',
-  AFTEREND: 'afterEnd,',
 };
 
-export const createComponent = (wrap, content, point = pastePoints.BEFOREEND) => {
-  wrap.insertAdjacentHTML(point, content);
+export const renderTemplate = (container, markup, point = RenderPoints.BEFOREEND) => {
+  container.insertAdjacentHTML(point, markup);
+};
+
+export const renderElement = (container, markup, point = RenderPoints.BEFOREEND) => {
+  switch (point) {
+    case RenderPoints.AFTERBEGIN:
+      container.prepend(markup);
+      break;
+    case RenderPoints.BEFOREEND:
+      container.append(markup);
+      break;
+  }
+};
+
+export const createElement = (markup) => {
+  const newElement = document.createElement('div');
+  newElement.innerHTML = markup;
+
+  return newElement.firstChild;
 };

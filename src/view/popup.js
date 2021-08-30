@@ -1,3 +1,7 @@
+import {
+  createElement
+} from '../utils/create-component';
+
 export const createPopup = (film) => {
   const {
     poster,
@@ -131,3 +135,26 @@ export const createPopup = (film) => {
       </section>
   `;
 };
+
+export default class Popup {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createPopup(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

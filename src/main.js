@@ -8,27 +8,18 @@ import {
   isEscEvent
 } from './utils/check-events.js';
 import {
-  renderTemplate,
   RenderPoints,
-  renderElement
+  render
 } from './utils/create-component.js';
-import {
-  createComment
-} from './view/comment.js';
-import {
-  createFilmCard
-} from './view/film-card.js';
+import CommentView from './view/comment.js';
+import FilmCardView from './view/film-card.js';
 import FooterStatsView from './view/footer.js';
 import filmsListItemView from './view/list-item.js';
 import FilmsListView from './view/list.js';
 import SiteMenuView from './view/menu.js';
 import MoreBtnView from './view/more-button.js';
-import PopupView, {
-  createPopup
-} from './view/popup.js';
-import {
-  createSort
-} from './view/sort.js';
+import PopupView from './view/popup.js';
+import SortView from './view/sort.js';
 import StatsView from './view/stats.js';
 
 const FILMS_COUNT_PER_STEP = 5;
@@ -45,18 +36,18 @@ const {
   AFTERBEGIN,
 } = RenderPoints;
 
-renderElement(header, new StatsView().getElement()); // Имя профиля
+render(header, new StatsView().getElement()); // Имя профиля
 
-renderElement(main, new SiteMenuView(films).getElement(), AFTERBEGIN); // Отрисовка меню
+render(main, new SiteMenuView(films).getElement(), AFTERBEGIN); // Отрисовка меню
 
-renderTemplate(main, createSort()); // Сортировка
+render(main, new SortView().getElement()); // Сортировка
 
-renderElement(main, new FilmsListView().getElement()); // Список фильмов
+render(main, new FilmsListView().getElement()); // Список фильмов
 
-renderElement(footerStats, new FooterStatsView(films.length).getElement(), AFTERBEGIN); // Количество фильмов
+render(footerStats, new FooterStatsView(films.length).getElement(), AFTERBEGIN); // Количество фильмов
 
 const listsWrap = document.querySelector('.films');
-renderElement(listsWrap, new FilmsListView().getElement()); // Главный список
+render(listsWrap, new filmsListItemView(listTitles.ALL).getElement(), AFTERBEGIN); // Главный список
 
 const filmsListsContainers = document.querySelectorAll('.films-list__container');
 
@@ -67,7 +58,8 @@ const renderCards = (elements, count, place) => {
   for (let i = 0; i < Math.min(elements.length, count); i++) {
     let cards = new Array;
     // Создаем карточку
-    renderTemplate(place, createFilmCard(elements[i]));
+    const card = new FilmCardView(elements[i]);
+    render(place, card.getElement());
     cards = document.querySelectorAll('.film-card');
     const currentCard = cards[cards.length - 1];
     const currentCardParts = {
@@ -78,8 +70,7 @@ const renderCards = (elements, count, place) => {
 
     // Создаем попап карточки
     const popupComponent = new PopupView(elements[i]);
-    // renderTemplate(body, createPopup(elements[i]));
-    renderElement(body, popupComponent.getElement());
+    render(body, popupComponent.getElement());
     const popups = document.querySelectorAll('.film-details');
     const currentPopup = popups[popups.length - 1];
 
@@ -91,7 +82,9 @@ const renderCards = (elements, count, place) => {
       // Отрисовка комментариев
       if (!currentCommentWraps[i].hasChildNodes()) {
         elements[i].comments.forEach((comment) => {
-          renderTemplate(currentCommentWraps[i], createComment(comment));
+          const singleComment = new CommentView(comment);
+          console.log(singleComment);
+          render(currentCommentWraps[i], singleComment.getElement());
         });
       }
       const closePopupBtn = currentPopup.querySelector('.film-details__close-btn');
@@ -127,7 +120,7 @@ if (films.length > FILMS_COUNT_PER_STEP) {
 
   const loadMoreButtonComponent = new MoreBtnView();
 
-  renderElement(mainList, loadMoreButtonComponent.getElement()); // Добавляем кнопку "Показать еще" в главный список
+  render(mainList, loadMoreButtonComponent.getElement()); // Добавляем кнопку "Показать еще" в главный список
 
   loadMoreButtonComponent.getElement().addEventListener('click', (evt) => {
     evt.preventDefault();

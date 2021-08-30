@@ -1,4 +1,8 @@
-export const createFilmCard = (film) => {
+import {
+  createElement
+} from '../utils/create-component';
+
+const createFilmCard = (film) => {
   const {
     name,
     rating,
@@ -17,8 +21,7 @@ export const createFilmCard = (film) => {
   let additionalLetter = '';
   film.commentsCount !== 1 ? additionalLetter = 's' : {};
 
-  return `
-    <article class="film-card">
+  return `<article class="film-card">
       <h3 class="film-card__title">${name}</h3>
       <p class="film-card__rating">${rating}</p>
       <p class="film-card__info">
@@ -34,6 +37,28 @@ export const createFilmCard = (film) => {
         <button class="film-card__controls-item film-card__controls-item--mark-as-watched" type="button">Mark as watched</button>
         <button class="film-card__controls-item film-card__controls-item--favorite" type="button">Mark as favorite</button>
       </div>
-    </article>
-  `;
+    </article>`;
 };
+
+export default class FilmCard {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmCard(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

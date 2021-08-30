@@ -2,20 +2,19 @@ import {
   createElement
 } from '../utils/create-component';
 
-const createFilmsListItem = (heading) => `
-  <section class="films-list">
+const createFilmsListItem = (heading) => (`<section class="films-list">
     <h2 class="films-list__title visually-hidden">${heading}</h2>
     <div class="films-list__container"></div>
-  </section>
-`;
+  </section>`);
 
 export default class FilmsListItem {
-  constructor() {
+  constructor(title) {
+    this._title = title;
     this._element = null;
   }
 
   getTemplate() {
-    return createFilmsListItem();
+    return createFilmsListItem(this._title);
   }
 
   getElement() {

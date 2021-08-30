@@ -2,7 +2,7 @@ import {
   createElement
 } from '../utils/create-component';
 
-const createFilmsCount = (count) => `<p>${count} movies inside</p>`;
+const createFilmsCount = (count) => (`<p>${count} movies inside</p>`);
 
 export default class FooterStats {
   constructor(numberOfFilms) {

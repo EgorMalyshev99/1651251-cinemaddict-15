@@ -3,11 +3,7 @@ export const RenderPoints = {
   BEFOREEND: 'beforeend',
 };
 
-export const renderTemplate = (container, markup, point = RenderPoints.BEFOREEND) => {
-  container.insertAdjacentHTML(point, markup);
-};
-
-export const renderElement = (container, markup, point = RenderPoints.BEFOREEND) => {
+export const render = (container, markup, point = RenderPoints.BEFOREEND) => {
   switch (point) {
     case RenderPoints.AFTERBEGIN:
       container.prepend(markup);

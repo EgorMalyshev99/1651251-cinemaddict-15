@@ -13,7 +13,7 @@ import {
 } from './utils/create-component.js';
 import CommentView from './view/comment.js';
 import FilmCardView from './view/film-card.js';
-import FooterStatsView from './view/footer.js';
+import FooterStatsView from './view/films-count.js';
 import filmsListItemView from './view/list-item.js';
 import FilmsListView from './view/list.js';
 import SiteMenuView from './view/menu.js';
@@ -79,17 +79,18 @@ const renderCards = (elements, count, place) => {
 
     const showPopupHandler = () => {
       currentPopup.classList.remove('visually-hidden');
+      body.classList.add('hide-overflow');
       // Отрисовка комментариев
       if (!currentCommentWraps[i].hasChildNodes()) {
         elements[i].comments.forEach((comment) => {
           const singleComment = new CommentView(comment);
-          console.log(singleComment);
           render(currentCommentWraps[i], singleComment.getElement());
         });
       }
       const closePopupBtn = currentPopup.querySelector('.film-details__close-btn');
       const closePopupHandler = () => {
         currentPopup.classList.add('visually-hidden');
+        body.classList.remove('hide-overflow');
         closePopupBtn.removeEventListener('click', closePopupHandler);
       };
       const escPopupHandler = (event) => {

@@ -8,42 +8,21 @@ import {
   isEscEvent
 } from './utils/check-events.js';
 import {
-  createComponent,
-  pastePoints
+  RenderPoints,
+  render
 } from './utils/create-component.js';
-import {
-  createComment
-} from './view/comment.js';
-import {
-  createFilmCard
-} from './view/film-card.js';
-import {
-  filmsCount
-} from './view/footer.js';
-import {
-  filmsListItem
-} from './view/list-item.js';
-import {
-  filmsList
-} from './view/list.js';
-import {
-  createMainNav
-} from './view/menu.js';
-import {
-  moreBtn
-} from './view/more-button.js';
-import {
-  createPopup
-} from './view/popup.js';
-import {
-  createSort
-} from './view/sort.js';
-import {
-  stats
-} from './view/stats.js';
+import CommentView from './view/comment.js';
+import FilmCardView from './view/film-card.js';
+import FooterStatsView from './view/films-count.js';
+import filmsListItemView from './view/list-item.js';
+import FilmsListView from './view/list.js';
+import SiteMenuView from './view/menu.js';
+import MoreBtnView from './view/more-button.js';
+import PopupView from './view/popup.js';
+import SortView from './view/sort.js';
+import StatsView from './view/stats.js';
 
 const FILMS_COUNT_PER_STEP = 5;
-// const OTHER_FILMS_COUNT = 2;
 const NUMBER_OF_FILMS = 20;
 
 const films = new Array(NUMBER_OF_FILMS).fill().map(generateFilm);
@@ -55,23 +34,20 @@ const footerStats = document.querySelector('.footer__statistics');
 
 const {
   AFTERBEGIN,
-} = pastePoints;
+} = RenderPoints;
 
-createComponent(header, stats); // Имя профиля
+render(header, new StatsView().getElement()); // Имя профиля
 
-createComponent(main, createMainNav(films), AFTERBEGIN); // Отрисовка меню
+render(main, new SiteMenuView(films).getElement(), AFTERBEGIN); // Отрисовка меню
 
-createComponent(main, createSort()); // Сортировка
+render(main, new SortView().getElement()); // Сортировка
 
-createComponent(main, filmsList); // Список фильмов
+render(main, new FilmsListView().getElement()); // Список фильмов
 
-createComponent(footerStats, filmsCount(films.length)); // Количество фильмов
+render(footerStats, new FooterStatsView(films.length).getElement(), AFTERBEGIN); // Количество фильмов
 
 const listsWrap = document.querySelector('.films');
-createComponent(listsWrap, filmsListItem(listTitles.all), AFTERBEGIN); // Главный список
-
-// createComponent(listsWrap, filmsListItem(listTitles.top)); // Cписок "Top rated"
-// createComponent(listsWrap, filmsListItem(listTitles.comment)); // Список "Most commented"
+render(listsWrap, new filmsListItemView(listTitles.ALL).getElement(), AFTERBEGIN); // Главный список
 
 const filmsListsContainers = document.querySelectorAll('.films-list__container');
 
@@ -82,7 +58,8 @@ const renderCards = (elements, count, place) => {
   for (let i = 0; i < Math.min(elements.length, count); i++) {
     let cards = new Array;
     // Создаем карточку
-    createComponent(place, createFilmCard(elements[i]));
+    const card = new FilmCardView(elements[i]);
+    render(place, card.getElement());
     cards = document.querySelectorAll('.film-card');
     const currentCard = cards[cards.length - 1];
     const currentCardParts = {
@@ -92,7 +69,8 @@ const renderCards = (elements, count, place) => {
     };
 
     // Создаем попап карточки
-    createComponent(body, createPopup(elements[i]));
+    const popupComponent = new PopupView(elements[i]);
+    render(body, popupComponent.getElement());
     const popups = document.querySelectorAll('.film-details');
     const currentPopup = popups[popups.length - 1];
 
@@ -101,15 +79,18 @@ const renderCards = (elements, count, place) => {
 
     const showPopupHandler = () => {
       currentPopup.classList.remove('visually-hidden');
+      body.classList.add('hide-overflow');
       // Отрисовка комментариев
       if (!currentCommentWraps[i].hasChildNodes()) {
         elements[i].comments.forEach((comment) => {
-          createComponent(currentCommentWraps[i], createComment(comment));
+          const singleComment = new CommentView(comment);
+          render(currentCommentWraps[i], singleComment.getElement());
         });
       }
       const closePopupBtn = currentPopup.querySelector('.film-details__close-btn');
       const closePopupHandler = () => {
         currentPopup.classList.add('visually-hidden');
+        body.classList.remove('hide-overflow');
         closePopupBtn.removeEventListener('click', closePopupHandler);
       };
       const escPopupHandler = (event) => {
@@ -133,32 +114,24 @@ const renderCards = (elements, count, place) => {
 // Отрисовка всех фильмов
 renderCards(films, FILMS_COUNT_PER_STEP, filmsListsContainers[0]);
 
-// Отрисовка 2 карточек фильмов в списке "Top rated" и "Most commented"
-// const mockTopRatedFilms = getSomeItems(films, 5);
-// const mockMostCommentedFilms = getSomeItems(films, 5);
-
-// renderCards(mockTopRatedFilms, OTHER_FILMS_COUNT, filmsListsContainers[1]);
-// renderCards(mockMostCommentedFilms, OTHER_FILMS_COUNT, filmsListsContainers[2]);
-
 // Логика кнопки "Показать ещё"
 const mainList = document.querySelectorAll('.films-list')[0];
 if (films.length > FILMS_COUNT_PER_STEP) {
   let renderedFilmsCount = FILMS_COUNT_PER_STEP;
 
-  createComponent(mainList, moreBtn); // Добавляем кнопку "Показать еще" в главный список
+  const loadMoreButtonComponent = new MoreBtnView();
 
-  const loadMoreButton = mainList.querySelector('.films-list__show-more');
+  render(mainList, loadMoreButtonComponent.getElement()); // Добавляем кнопку "Показать еще" в главный список
 
-  loadMoreButton.addEventListener('click', (evt) => {
+  loadMoreButtonComponent.getElement().addEventListener('click', (evt) => {
     evt.preventDefault();
-    // films
-    //  .slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP)
-    //  .forEach((film) => createComponent(filmsListsContainers[0], createFilmCard(film)));
+
     renderCards(films.slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP), FILMS_COUNT_PER_STEP, filmsListsContainers[0]);
     renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
     if (renderedFilmsCount >= films.length) {
-      loadMoreButton.remove();
+      loadMoreButtonComponent.getElement().remove();
+      loadMoreButtonComponent.removeElement();
     }
   });
 }

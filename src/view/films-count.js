@@ -2,15 +2,16 @@ import {
   createElement
 } from '../utils/create-component';
 
-const createMoreBtn = () => ('<button class="films-list__show-more">Show more</button>');
+const createFilmsCount = (count) => (`<p>${count} movies inside</p>`);
 
-export default class MoreBtn {
-  constructor() {
+export default class FooterStats {
+  constructor(numberOfFilms) {
+    this._numberOfFilms = numberOfFilms;
     this._element = null;
   }
 
   getTemplate() {
-    return createMoreBtn();
+    return createFilmsCount(this._numberOfFilms);
   }
 
   getElement() {

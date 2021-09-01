@@ -1,4 +1,8 @@
-export const createMainNav = (filmsList) => {
+import {
+  createElement
+} from '../utils/create-component';
+
+const createMainNav = (filmsList) => {
   const status = {
     all: filmsList.length,
     watchList: filmsList.filter((film) => film.status.isWatchList).length,
@@ -18,3 +22,26 @@ export const createMainNav = (filmsList) => {
     </nav>
   `;
 };
+
+export default class SiteMenu {
+  constructor(films) {
+    this._films = films;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createMainNav(this._films);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

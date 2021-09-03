@@ -57,6 +57,7 @@ const renderCards = (elements, count, place) => {
 
   for (let i = 0; i < Math.min(elements.length, count); i++) {
     let cards = new Array;
+
     // Создаем карточку
     const card = new FilmCardView(elements[i]);
     render(place, card.getElement());
@@ -80,6 +81,7 @@ const renderCards = (elements, count, place) => {
     const showPopupHandler = () => {
       currentPopup.classList.remove('visually-hidden');
       body.classList.add('hide-overflow');
+
       // Отрисовка комментариев
       if (!currentCommentWraps[i].hasChildNodes()) {
         elements[i].comments.forEach((comment) => {

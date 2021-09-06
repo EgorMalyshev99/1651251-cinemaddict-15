@@ -9,8 +9,9 @@ import {
 } from './utils/check-events.js';
 import {
   RenderPoints,
-  render
-} from './utils/create-component.js';
+  render,
+  remove
+} from './utils/render.js';
 import CommentView from './view/comment.js';
 import FilmCardView from './view/film-card.js';
 import FooterStatsView from './view/films-count.js';
@@ -36,18 +37,18 @@ const {
   AFTERBEGIN,
 } = RenderPoints;
 
-render(header, new StatsView().getElement()); // Имя профиля
+render(header, new StatsView()); // Имя профиля
 
-render(main, new SiteMenuView(films).getElement(), AFTERBEGIN); // Отрисовка меню
+render(main, new SiteMenuView(films), AFTERBEGIN); // Отрисовка меню
 
-render(main, new SortView().getElement()); // Сортировка
+render(main, new SortView()); // Сортировка
 
-render(main, new FilmsListView().getElement()); // Список фильмов
+render(main, new FilmsListView()); // Список фильмов
 
-render(footerStats, new FooterStatsView(films.length).getElement(), AFTERBEGIN); // Количество фильмов
+render(footerStats, new FooterStatsView(films.length), AFTERBEGIN); // Количество фильмов
 
 const listsWrap = document.querySelector('.films');
-render(listsWrap, new filmsListItemView(listTitles.ALL).getElement(), AFTERBEGIN); // Главный список
+render(listsWrap, new filmsListItemView(listTitles.ALL), AFTERBEGIN); // Главный список
 
 const filmsListsContainers = document.querySelectorAll('.films-list__container');
 
@@ -60,7 +61,7 @@ const renderCards = (elements, count, place) => {
 
     // Создаем карточку
     const card = new FilmCardView(elements[i]);
-    render(place, card.getElement());
+    render(place, card);
     cards = document.querySelectorAll('.film-card');
     const currentCard = cards[cards.length - 1];
     const currentCardParts = {
@@ -71,7 +72,7 @@ const renderCards = (elements, count, place) => {
 
     // Создаем попап карточки
     const popupComponent = new PopupView(elements[i]);
-    render(body, popupComponent.getElement());
+    render(body, popupComponent);
     const popups = document.querySelectorAll('.film-details');
     const currentPopup = popups[popups.length - 1];
 
@@ -86,7 +87,7 @@ const renderCards = (elements, count, place) => {
       if (!currentCommentWraps[i].hasChildNodes()) {
         elements[i].comments.forEach((comment) => {
           const singleComment = new CommentView(comment);
-          render(currentCommentWraps[i], singleComment.getElement());
+          render(currentCommentWraps[i], singleComment);
         });
       }
       const closePopupBtn = currentPopup.querySelector('.film-details__close-btn');
@@ -113,27 +114,76 @@ const renderCards = (elements, count, place) => {
   }
 };
 
+const renderCard = (card, place) => {
+  // Создаем карточку
+  render(place, card);
+  const cardTitle = card.querySelector('.film-card__title');
+  const cardPoster = card.querySelector('.film-card__poster');
+  const commentsBtn = card.querySelector('.film-card__comments');
+
+  // Создаем попап карточки
+  const popupComponent = new PopupView(card);
+  render(body, popupComponent);
+
+  const showPopupHandler = () => {
+    popupComponent.classList.remove('visually-hidden');
+    body.classList.add('hide-overflow');
+
+    // Отрисовка комментариев
+    card.comments.forEach((comment) => {
+      const singleComment = new CommentView(comment);
+      render(popupComponent.querySelector('.film-details__comments-list'), singleComment);
+    });
+    const closePopupBtn = popupComponent.querySelector('.film-details__close-btn');
+    const closePopupHandler = () => {
+      popupComponent.classList.add('visually-hidden');
+      body.classList.remove('hide-overflow');
+      closePopupBtn.removeEventListener('click', closePopupHandler);
+    };
+    const escPopupHandler = (event) => {
+      if (isEscEvent(event)) {
+        popupComponent.classList.add('visually-hidden');
+        document.removeEventListener('keydown', escPopupHandler);
+      }
+    };
+    closePopupBtn.addEventListener('click', closePopupHandler);
+    document.addEventListener('keydown', escPopupHandler);
+  };
+
+  // Добавляем листенеры
+  // for (const value in currentCardParts) {
+  //   currentCardParts[value].addEventListener('click', showPopupHandler);
+  //   currentCardParts[value].style.cursor = 'pointer';
+  // }
+
+};
+
+for (let i = 0; i < films.length; i++) {
+  const card = new FilmCardView(films[i]);
+  renderCard(card);
+}
+
+
 // Отрисовка всех фильмов
 renderCards(films, FILMS_COUNT_PER_STEP, filmsListsContainers[0]);
 
 // Логика кнопки "Показать ещё"
 const mainList = document.querySelectorAll('.films-list')[0];
+
 if (films.length > FILMS_COUNT_PER_STEP) {
   let renderedFilmsCount = FILMS_COUNT_PER_STEP;
 
   const loadMoreButtonComponent = new MoreBtnView();
 
-  render(mainList, loadMoreButtonComponent.getElement()); // Добавляем кнопку "Показать еще" в главный список
+  render(mainList, loadMoreButtonComponent); // Добавляем кнопку "Показать еще" в главный список
 
-  loadMoreButtonComponent.getElement().addEventListener('click', (evt) => {
-    evt.preventDefault();
+  loadMoreButtonComponent.setClickHandler(() => {
 
     renderCards(films.slice(renderedFilmsCount, renderedFilmsCount + FILMS_COUNT_PER_STEP), FILMS_COUNT_PER_STEP, filmsListsContainers[0]);
     renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
     if (renderedFilmsCount >= films.length) {
-      loadMoreButtonComponent.getElement().remove();
-      loadMoreButtonComponent.removeElement();
+      remove(loadMoreButtonComponent);
     }
   });
 }

@@ -1,6 +1,4 @@
-import {
-  createElement
-} from '../utils/create-component';
+import AbstractView from './abstract';
 
 const createMainNav = (filmsList) => {
   const status = {
@@ -10,8 +8,7 @@ const createMainNav = (filmsList) => {
     favorites: filmsList.filter((film) => film.status.isFavorite).length,
   };
 
-  return `
-    <nav class="main-navigation">
+  return `<nav class="main-navigation">
       <div class="main-navigation__items">
         <a href="#all" class="main-navigation__item main-navigation__item--active">All movies: ${status.all}</a>
         <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">${status.watchList}</span></a>
@@ -19,29 +16,16 @@ const createMainNav = (filmsList) => {
         <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">${status.favorites}</span></a>
       </div>
       <a href="#stats" class="main-navigation__additional">Stats</a>
-    </nav>
-  `;
+    </nav>`;
 };
 
-export default class SiteMenu {
+export default class SiteMenu extends AbstractView {
   constructor(films) {
+    super();
     this._films = films;
-    this._element = null;
   }
 
   getTemplate() {
     return createMainNav(this._films);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

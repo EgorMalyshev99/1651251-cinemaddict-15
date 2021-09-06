@@ -53,52 +53,37 @@ render(listsWrap, new filmsListItemView(listTitles.ALL), AFTERBEGIN); // Гла�
 const filmsListsContainers = document.querySelectorAll('.films-list__container');
 
 const renderCards = (elements, count, place) => {
-  let commentsWraps = new Array;
-  const currentCommentWraps = new Array;
 
   for (let i = 0; i < Math.min(elements.length, count); i++) {
-    let cards = new Array;
 
     // Создаем карточку
     const card = new FilmCardView(elements[i]);
     render(place, card);
-    cards = document.querySelectorAll('.film-card');
-    const currentCard = cards[cards.length - 1];
-    const currentCardParts = {
-      title: currentCard.querySelector('.film-card__title'),
-      poster: currentCard.querySelector('.film-card__poster'),
-      commentsBtn: currentCard.querySelector('.film-card__comments'),
-    };
 
     // Создаем попап карточки
     const popupComponent = new PopupView(elements[i]);
     render(body, popupComponent);
-    const popups = document.querySelectorAll('.film-details');
-    const currentPopup = popups[popups.length - 1];
-
-    commentsWraps = document.querySelectorAll('.film-details__comments-list');
-    currentCommentWraps.push(commentsWraps[commentsWraps.length - 1]);
 
     const showPopupHandler = () => {
-      currentPopup.classList.remove('visually-hidden');
+      popupComponent.getElement().classList.remove('visually-hidden');
       body.classList.add('hide-overflow');
 
       // Отрисовка комментариев
-      if (!currentCommentWraps[i].hasChildNodes()) {
+      if (!popupComponent.getElement().querySelector('.film-details__comments-list').hasChildNodes()) {
         elements[i].comments.forEach((comment) => {
           const singleComment = new CommentView(comment);
-          render(currentCommentWraps[i], singleComment);
+          render(popupComponent.getElement().querySelector('.film-details__comments-list'), singleComment);
         });
       }
-      const closePopupBtn = currentPopup.querySelector('.film-details__close-btn');
+      const closePopupBtn = popupComponent.getElement().querySelector('.film-details__close-btn');
       const closePopupHandler = () => {
-        currentPopup.classList.add('visually-hidden');
+        popupComponent.getElement().classList.add('visually-hidden');
         body.classList.remove('hide-overflow');
         closePopupBtn.removeEventListener('click', closePopupHandler);
       };
       const escPopupHandler = (event) => {
         if (isEscEvent(event)) {
-          currentPopup.classList.add('visually-hidden');
+          popupComponent.getElement().classList.add('visually-hidden');
           document.removeEventListener('keydown', escPopupHandler);
         }
       };
@@ -107,62 +92,11 @@ const renderCards = (elements, count, place) => {
     };
 
     // Добавляем листенеры
-    for (const value in currentCardParts) {
-      currentCardParts[value].addEventListener('click', showPopupHandler);
-      currentCardParts[value].style.cursor = 'pointer';
-    }
+    card.getElement().querySelector('.film-card__title').addEventListener('click', showPopupHandler);
+    card.getElement().querySelector('.film-card__poster').addEventListener('click', showPopupHandler);
+    card.getElement().querySelector('.film-card__comments').addEventListener('click', showPopupHandler);
   }
 };
-
-const renderCard = (card, place) => {
-  // Создаем карточку
-  render(place, card);
-  const cardTitle = card.querySelector('.film-card__title');
-  const cardPoster = card.querySelector('.film-card__poster');
-  const commentsBtn = card.querySelector('.film-card__comments');
-
-  // Создаем попап карточки
-  const popupComponent = new PopupView(card);
-  render(body, popupComponent);
-
-  const showPopupHandler = () => {
-    popupComponent.classList.remove('visually-hidden');
-    body.classList.add('hide-overflow');
-
-    // Отрисовка комментариев
-    card.comments.forEach((comment) => {
-      const singleComment = new CommentView(comment);
-      render(popupComponent.querySelector('.film-details__comments-list'), singleComment);
-    });
-    const closePopupBtn = popupComponent.querySelector('.film-details__close-btn');
-    const closePopupHandler = () => {
-      popupComponent.classList.add('visually-hidden');
-      body.classList.remove('hide-overflow');
-      closePopupBtn.removeEventListener('click', closePopupHandler);
-    };
-    const escPopupHandler = (event) => {
-      if (isEscEvent(event)) {
-        popupComponent.classList.add('visually-hidden');
-        document.removeEventListener('keydown', escPopupHandler);
-      }
-    };
-    closePopupBtn.addEventListener('click', closePopupHandler);
-    document.addEventListener('keydown', escPopupHandler);
-  };
-
-  // Добавляем листенеры
-  // for (const value in currentCardParts) {
-  //   currentCardParts[value].addEventListener('click', showPopupHandler);
-  //   currentCardParts[value].style.cursor = 'pointer';
-  // }
-
-};
-
-for (let i = 0; i < films.length; i++) {
-  const card = new FilmCardView(films[i]);
-  renderCard(card);
-}
-
 
 // Отрисовка всех фильмов
 renderCards(films, FILMS_COUNT_PER_STEP, filmsListsContainers[0]);

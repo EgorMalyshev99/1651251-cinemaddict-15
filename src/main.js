@@ -75,26 +75,24 @@ const renderCards = (elements, count, place) => {
           render(popupComponent.getElement().querySelector('.film-details__comments-list'), singleComment);
         });
       }
-      const closePopupBtn = popupComponent.getElement().querySelector('.film-details__close-btn');
       const closePopupHandler = () => {
         popupComponent.getElement().classList.add('visually-hidden');
         body.classList.remove('hide-overflow');
-        closePopupBtn.removeEventListener('click', closePopupHandler);
+        popupComponent.getElement().querySelector('.film-details__close-btn').removeEventListener('click', closePopupHandler);
       };
       const escPopupHandler = (event) => {
         if (isEscEvent(event)) {
           popupComponent.getElement().classList.add('visually-hidden');
+          body.classList.remove('hide-overflow');
           document.removeEventListener('keydown', escPopupHandler);
         }
       };
-      closePopupBtn.addEventListener('click', closePopupHandler);
+      popupComponent.setClosePopupHandler(closePopupHandler);
       document.addEventListener('keydown', escPopupHandler);
     };
 
     // Добавляем листенеры
-    card.getElement().querySelector('.film-card__title').addEventListener('click', showPopupHandler);
-    card.getElement().querySelector('.film-card__poster').addEventListener('click', showPopupHandler);
-    card.getElement().querySelector('.film-card__comments').addEventListener('click', showPopupHandler);
+    card.setShowPopupHandler(showPopupHandler);
   }
 };
 

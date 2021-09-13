@@ -17,6 +17,29 @@ const createPopup = (film) => {
     description,
   } = film;
 
+  const createComments = (allComments) => {
+    let markup = '';
+    if (allComments) {
+      allComments.forEach((comment) => {
+        markup += `<li class="film-details__comment">
+        <span class="film-details__comment-emoji">
+          <img src="${comment.emoji}" width="55" height="55" alt="emoji-smile">
+        </span>
+        <div>
+          <p class="film-details__comment-text">${comment.text}</p>
+          <p class="film-details__comment-info">
+            <span class="film-details__comment-author">${comment.author}</span>
+            <span class="film-details__comment-day">${comment.date}</span>
+            <button class="film-details__comment-delete">Delete</button>
+          </p>
+        </div>
+      </li>`;
+      });
+    }
+
+    return markup;
+  };
+
   return `<section class="film-details visually-hidden">
             <form class="film-details__inner" action="" method="get">
               <div class="film-details__top-container">
@@ -92,6 +115,12 @@ const createPopup = (film) => {
 
               <div class="film-details__bottom-container">
                 <section class="film-details__comments-wrap">
+                  <h3 class="film-details__comments-title">Comments: <span class="film-details__comments-count">${film.comments.length}</span></h3>
+
+                  <ul class="film-details__comments-list">
+                    ${createComments(film.comments)}
+                  </ul>
+
                   <div class="film-details__new-comment">
                     <div class="film-details__add-emoji-label"></div>
 

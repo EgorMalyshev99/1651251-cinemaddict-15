@@ -2,7 +2,7 @@ import FilmsView from '../view/lists-container.js';
 import FilmsListView from '../view/films-list.js';
 import NoFilmsView from '../view/no-films.js';
 import FilmsListContainerView from '../view/films-list-container.js';
-import FilmPresenter from './film.js';
+import FilmPresenter from './movie.js';
 import SortView from '../view/sort.js';
 import MenuView from '../view/menu.js';
 import LoadMoreButtonView from '../view/more-button.js';
@@ -14,14 +14,18 @@ import {
 import {
   listTitles
 } from '../data.js';
+import {
+  updateItem
+} from '../utils/common.js';
 
 
 const FILMS_COUNT_PER_STEP = 5;
 
-export default class Films {
+export default class MovieList {
   constructor(boardContainer) {
     this._boardContainer = boardContainer;
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
+    this._filmPresenter = new Map;
 
     this._boardComponent = new FilmsView();
     this._sortComponent = new SortView();
@@ -31,19 +35,22 @@ export default class Films {
     this._filmsListContainerComponent = new FilmsListContainerView();
     this._moreButtonComponent = new LoadMoreButtonView();
 
-    // this._handleFilmChange = this._handleFilmChange.bind(this);
-    // this._handleMoreChange = this._handleMoreChange.bind(this);
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
   }
 
   init(films) {
-    this._films = films.slice();
+    this._boardFilms = films.slice();
 
     this._renderBoard();
   }
 
   _renderMenu() {
-    render(this._boardContainer, new MenuView(this._films), RenderPoints.AFTERBEGIN); // Отрисовка меню
+    render(this._boardContainer, new MenuView(this._boardFilms), RenderPoints.AFTERBEGIN); // Отрисовка меню
+  }
+
+  _handleFilmChange(updatedFilm) {
+    this._boardFilms = updateItem(this._boardFilms, updatedFilm);
+    this._filmPresenter.get(updatedFilm.id).init(updatedFilm);
   }
 
   _renderSort() {
@@ -58,8 +65,8 @@ export default class Films {
 
   _renderFilm(film) {
     const filmPresenter = new FilmPresenter(this._filmsListContainerComponent);
-
     filmPresenter.init(film);
+    this._filmPresenter.set(film.id, filmPresenter);
   }
 
   _renderFilms(from, to) {
@@ -77,6 +84,15 @@ export default class Films {
     if (this._films.length > FILMS_COUNT_PER_STEP) {
       this._renderLoadMoreButton();
     }
+  }
+
+  _clearFilmsList() {
+    this._filmPresenter.forEach((presenter) => {
+      presenter.destroy();
+    });
+    this._filmPresenter.clear();
+    this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
+    remove(this._moreButtonComponent);
   }
 
   _renderNoFilms() {

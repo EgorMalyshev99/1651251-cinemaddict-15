@@ -1,14 +1,15 @@
 import FilmCardView from '../view/film-card.js';
 import PopupView from '../view/popup.js';
-import CommentView from '../view/comment.js';
 import {
   isEscEvent
 } from '../utils/check-events.js';
 import {
-  render
+  remove,
+  render,
+  replace
 } from '../utils/render';
 
-export default class Film {
+export default class Movie {
   constructor(filmsListContainer) {
     this._filmsListContainer = filmsListContainer;
     this._body = document.querySelector('body');
@@ -16,33 +17,54 @@ export default class Film {
     this._filmComponent = null;
     this._popupComponent = null;
 
-    this.handleShowPopup = this._handleShowPopup.bind(this);
+    this._handleShowPopup = this._handleShowPopup.bind(this);
+    this._handleClosePopup = this._handleClosePopup.bind(this);
+    this._handeleEscPopup = this._handeleEscPopup.bind(this);
   }
 
   init(film) {
+    this._film = film;
+
+    const prevFilmComponent = this._filmComponent;
+    const prevPopupComponent = this._popupComponent;
+
     this._filmComponent = new FilmCardView(film);
     this._popupComponent = new PopupView(film);
-    this._commentsComponent = new CommentView(film.comments);
 
-    this._renderFilm();
+    if (prevFilmComponent === null || prevPopupComponent === null) {
+      this._renderFilm();
+      return;
+    }
+
+    if (this._filmsListContainer.getElement().contains(prevFilmComponent.getElement())) {
+      replace(this._filmComponent, prevFilmComponent);
+    }
+
+    if (this._filmsListContainer.getElement().contains(prevPopupComponent.getElement())) {
+      replace(this._popupComponent, prevPopupComponent);
+    }
+
+    remove(prevFilmComponent);
+    remove(prevPopupComponent);
+  }
+
+  destroy() {
+    remove(this._filmComponent);
+    remove(this._popupComponent);
   }
 
   _handleShowPopup() {
-    this._popupComponent.classList.remove('visually-hidden');
+    this._popupComponent.getElement().classList.remove('visually-hidden');
     this._body.classList.add('hide-overflow');
 
-    // Отрисовка комментариев
-    if (!this._popupComponent.querySelector('.film-details__comments-list').hasChildNodes()) {
-      // commentss
-    }
     this._popupComponent.setClosePopupHandler(this._handleClosePopup);
     document.addEventListener('keydown', this._handleClosePopup);
   }
 
   _handleClosePopup() {
-    this._popupComponent.classList.add('visually-hidden');
+    this._popupComponent.getElement().classList.add('visually-hidden');
     this._body.classList.remove('hide-overflow');
-    this._popupComponent.querySelector('.film-details__close-btn').removeEventListener('click', this._handleClosePopup);
+    this._popupComponent.getElement().querySelector('.film-details__close-btn').removeEventListener('click', this._handleClosePopup);
   }
 
   _handeleEscPopup(event) {
@@ -54,18 +76,14 @@ export default class Film {
   }
 
   _renderPopup() {
-    // Создаем попап карточки
     render(this._body, this._popupComponent);
 
-    // Добавляем листенеры
     this._filmComponent.setShowPopupHandler(this._handleShowPopup);
   }
 
   _renderFilm() {
-    // Создаем карточку
     render(this._filmsListContainer, this._filmComponent);
 
-    // Создаем попап
     this._renderPopup();
   }
 }

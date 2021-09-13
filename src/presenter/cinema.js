@@ -2,10 +2,7 @@ import FilmsView from '../view/lists-container.js';
 import FilmsListView from '../view/films-list.js';
 import NoFilmsView from '../view/no-films.js';
 import FilmsListContainerView from '../view/films-list-container.js';
-// import FilmPresenter from './film.js';
-import FilmCardView from '../view/film-card.js';
-import PopupView from '../view/popup.js';
-import CommentView from '../view/comment.js';
+import FilmPresenter from './film.js';
 import SortView from '../view/sort.js';
 import MenuView from '../view/menu.js';
 import LoadMoreButtonView from '../view/more-button.js';
@@ -17,9 +14,7 @@ import {
 import {
   listTitles
 } from '../data.js';
-import {
-  isEscEvent
-} from '../utils/check-events.js';
+
 
 const FILMS_COUNT_PER_STEP = 5;
 
@@ -34,9 +29,6 @@ export default class Films {
     this._filmsListComponent = new FilmsListView(listTitles.ALL);
     this._noFilmsComponent = new NoFilmsView();
     this._filmsListContainerComponent = new FilmsListContainerView();
-    this._filmCardComponent = new FilmCardView();
-    this._popupComponent = new PopupView();
-    this._commentComponent = new CommentView();
     this._moreButtonComponent = new LoadMoreButtonView();
 
     // this._handleFilmChange = this._handleFilmChange.bind(this);
@@ -65,44 +57,9 @@ export default class Films {
   }
 
   _renderFilm(film) {
-    const body = document.querySelector('body');
-    // Создаем карточку
-    const card = new FilmCardView(film);
-    render(this._filmsListContainerComponent, card);
+    const filmPresenter = new FilmPresenter(this._filmsListContainerComponent);
 
-    // Создаем попап карточки
-    const popupComponent = new PopupView(film);
-    render(body, popupComponent);
-
-    const showPopupHandler = () => {
-      popupComponent.getElement().classList.remove('visually-hidden');
-      body.classList.add('hide-overflow');
-
-      // Отрисовка комментариев
-      if (!popupComponent.getElement().querySelector('.film-details__comments-list').hasChildNodes()) {
-        film.comments.forEach((comment) => {
-          const singleComment = new CommentView(comment);
-          render(popupComponent.getElement().querySelector('.film-details__comments-list'), singleComment);
-        });
-      }
-      const closePopupHandler = () => {
-        popupComponent.getElement().classList.add('visually-hidden');
-        body.classList.remove('hide-overflow');
-        popupComponent.getElement().querySelector('.film-details__close-btn').removeEventListener('click', closePopupHandler);
-      };
-      const escPopupHandler = (event) => {
-        if (isEscEvent(event)) {
-          popupComponent.getElement().classList.add('visually-hidden');
-          body.classList.remove('hide-overflow');
-          document.removeEventListener('keydown', escPopupHandler);
-        }
-      };
-      popupComponent.setClosePopupHandler(closePopupHandler);
-      document.addEventListener('keydown', escPopupHandler);
-    };
-
-    // Добавляем листенеры
-    card.setShowPopupHandler(showPopupHandler);
+    filmPresenter.init(film);
   }
 
   _renderFilms(from, to) {

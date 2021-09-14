@@ -18,7 +18,6 @@ import {
   updateItem
 } from '../utils/common.js';
 
-
 const FILMS_COUNT_PER_STEP = 5;
 
 export default class MovieList {
@@ -70,7 +69,7 @@ export default class MovieList {
   }
 
   _renderFilms(from, to) {
-    this._films
+    this._boardFilms
       .slice(from, to)
       .forEach((film) => {
         this._renderFilm(film);
@@ -79,9 +78,9 @@ export default class MovieList {
 
   _renderFilmsList() {
     this._renderFilmsListContainer();
-    this._renderFilms(0, Math.min(this._films.length, this._renderedFilmsCount));
+    this._renderFilms(0, Math.min(this._boardFilms.length, this._renderedFilmsCount));
 
-    if (this._films.length > FILMS_COUNT_PER_STEP) {
+    if (this._boardFilms.length > FILMS_COUNT_PER_STEP) {
       this._renderLoadMoreButton();
     }
   }
@@ -114,7 +113,7 @@ export default class MovieList {
   }
 
   _renderBoard() {
-    if (this._films.length === 0) {
+    if (this._boardFilms.length === 0) {
       this._renderNoFilms();
       return;
     }

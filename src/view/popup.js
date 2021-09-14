@@ -17,6 +17,14 @@ const createPopup = (film) => {
     description,
   } = film;
 
+  const isActiveClass = (status) => {
+    if (status === true) {
+      return 'film-details__control-button--active';
+    } else {
+      return '';
+    }
+  };
+
   const createComments = (allComments) => {
     let markup = '';
     if (allComments) {
@@ -40,7 +48,7 @@ const createPopup = (film) => {
     return markup;
   };
 
-  return `<section class="film-details visually-hidden">
+  return `<section class="film-details">
             <form class="film-details__inner" action="" method="get">
               <div class="film-details__top-container">
                 <div class="film-details__close">
@@ -107,9 +115,9 @@ const createPopup = (film) => {
                 </div>
 
                 <section class="film-details__controls">
-                  <button type="button" class="film-details__control-button film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>
-                  <button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--watched" id="watched" name="watched">Already watched</button>
-                  <button type="button" class="film-details__control-button film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>
+                  <button type="button" class="film-details__control-button film-details__control-button--watchlist ${isActiveClass(film.status.isWatchList)}" id="watchlist" name="watchlist">Add to watchlist</button>
+                  <button type="button" class="film-details__control-button film-details__control-button--watched ${isActiveClass(film.status.isHistory)}" id="watched" name="watched">Already watched</button>
+                  <button type="button" class="film-details__control-button film-details__control-button--favorite ${isActiveClass(film.status.isFavorite)}" id="favorite" name="favorite">Add to favorites</button>
                 </section>
               </div>
 
@@ -160,20 +168,55 @@ export default class Popup extends AbstractView {
   constructor(film) {
     super();
     this._film = film;
-    this._clickHandler = this._clickHandler.bind(this);
+
+    this._watchListClickHandler = this._watchListClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
+    this._historyClickHandler = this._historyClickHandler.bind(this);
+    this._closePopupHandler = this._closePopupHandler.bind(this);
   }
 
   getTemplate() {
     return createPopup(this._film);
   }
 
-  _clickHandler(event) {
+  _closePopupHandler(event) {
     event.preventDefault();
-    this._callback.click();
+    this._callback.closePopupClick();
+  }
+
+  _watchListClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.watchListClick();
+  }
+
+  _historyClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.historyClick();
+  }
+
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+
+  }
+
+  setWatchListClickHandler(callback) {
+    this._callback.watchListClick = callback;
+    this.getElement().querySelector('.film-details__control-button--watchlist').addEventListener('click', this._watchListClickHandler);
+  }
+
+  setHistoryClickHandler(callback) {
+    this._callback.historyClick = callback;
+    this.getElement().querySelector('.film-details__control-button--watched').addEventListener('click', this._historyClickHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector('.film-details__control-button--favorite').addEventListener('click', this._favoriteClickHandler);
   }
 
   setClosePopupHandler(callback) {
-    this._callback.click = callback;
-    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._clickHandler);
+    this._callback.closePopupClick = callback;
+    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._closePopupHandler);
   }
 }

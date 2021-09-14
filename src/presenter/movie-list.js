@@ -34,6 +34,8 @@ export default class MovieList {
     this._filmsListContainerComponent = new FilmsListContainerView();
     this._moreButtonComponent = new LoadMoreButtonView();
 
+    this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._handleModeChange = this._handleModeChange.bind(this);
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
   }
 
@@ -45,6 +47,12 @@ export default class MovieList {
 
   _renderMenu() {
     render(this._boardContainer, new MenuView(this._boardFilms), RenderPoints.AFTERBEGIN); // Отрисовка меню
+  }
+
+  _handleModeChange() {
+    this._filmPresenter.forEach((presenter) => {
+      presenter.resetView();
+    });
   }
 
   _handleFilmChange(updatedFilm) {
@@ -63,7 +71,7 @@ export default class MovieList {
   }
 
   _renderFilm(film) {
-    const filmPresenter = new FilmPresenter(this._filmsListContainerComponent);
+    const filmPresenter = new FilmPresenter(this._filmsListContainerComponent, this._handleFilmChange, this._handleModeChange);
     filmPresenter.init(film);
     this._filmPresenter.set(film.id, filmPresenter);
   }
@@ -95,14 +103,15 @@ export default class MovieList {
   }
 
   _renderNoFilms() {
-    // render(this._boardComponent, this._noFilmsComponent, RenderPoints.BEFOREEND);
+    render(this._boardContainer, this._boardComponent);
+    render(this._boardComponent, this._noFilmsComponent, RenderPoints.BEFOREEND);
   }
 
   _handleMoreButtonClick() {
     this._renderFilms(this._renderedFilmsCount, this._renderedFilmsCount + FILMS_COUNT_PER_STEP);
     this._renderedFilmsCount += FILMS_COUNT_PER_STEP;
 
-    if (this._renderedFilmsCount >= this._films.length) {
+    if (this._renderedFilmsCount >= this._boardFilms.length) {
       remove(this._moreButtonComponent);
     }
   }
@@ -113,13 +122,13 @@ export default class MovieList {
   }
 
   _renderBoard() {
+    this._renderSort(); // Сортировка
+    this._renderMenu(); // Меню
+
     if (this._boardFilms.length === 0) {
       this._renderNoFilms();
       return;
     }
-
-    this._renderSort(); // Сортировка
-    this._renderMenu(); // Меню
 
     this._renderFilmsList();
   }

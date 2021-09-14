@@ -4,19 +4,30 @@ import {
   isEscEvent
 } from '../utils/check-events.js';
 import {
-  remove,
   render,
+  remove,
   replace
 } from '../utils/render';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  SHOWING: 'SHOWING',
+};
+
 export default class Movie {
-  constructor(filmsListContainer) {
+  constructor(filmsListContainer, changeData, changeMode) {
     this._filmsListContainer = filmsListContainer;
+    this._changeData = changeData;
+    this._changeMode = changeMode;
     this._body = document.querySelector('body');
 
     this._filmComponent = null;
     this._popupComponent = null;
+    this._mode = Mode.DEFAULT;
 
+    this._handleWatchListClick = this._handleWatchListClick.bind(this);
+    this._handleHistoryClick = this._handleHistoryClick.bind(this);
+    this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleShowPopup = this._handleShowPopup.bind(this);
     this._handleClosePopup = this._handleClosePopup.bind(this);
     this._handeleEscPopup = this._handeleEscPopup.bind(this);
@@ -31,6 +42,16 @@ export default class Movie {
     this._filmComponent = new FilmCardView(film);
     this._popupComponent = new PopupView(film);
 
+    this._filmComponent.setWatchListClickHandler(this._handleWatchListClick);
+    this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
+    this._filmComponent.setHistoryClickHandler(this._handleHistoryClick);
+    this._filmComponent.setShowPopupHandler(this._handleShowPopup);
+    this._popupComponent.setWatchListClickHandler(this._handleWatchListClick);
+    this._popupComponent.setFavoriteClickHandler(this._handleFavoriteClick);
+    this._popupComponent.setHistoryClickHandler(this._handleHistoryClick);
+    this._popupComponent.setClosePopupHandler(this._handleClosePopup);
+    document.addEventListener('keydown', this._handleClosePopup);
+
     if (prevFilmComponent === null || prevPopupComponent === null) {
       this._renderFilm();
       return;
@@ -40,7 +61,7 @@ export default class Movie {
       replace(this._filmComponent, prevFilmComponent);
     }
 
-    if (this._filmsListContainer.getElement().contains(prevPopupComponent.getElement())) {
+    if (this._body.contains(prevPopupComponent.getElement())) {
       replace(this._popupComponent, prevPopupComponent);
     }
 
@@ -54,36 +75,95 @@ export default class Movie {
   }
 
   _handleShowPopup() {
-    this._popupComponent.getElement().classList.remove('visually-hidden');
-    this._body.classList.add('hide-overflow');
-
-    this._popupComponent.setClosePopupHandler(this._handleClosePopup);
-    document.addEventListener('keydown', this._handleClosePopup);
+    this._showPopup();
   }
 
   _handleClosePopup() {
-    this._popupComponent.getElement().classList.add('visually-hidden');
-    this._body.classList.remove('hide-overflow');
+    this._hidePopup();
     this._popupComponent.getElement().querySelector('.film-details__close-btn').removeEventListener('click', this._handleClosePopup);
   }
 
   _handeleEscPopup(event) {
     if (isEscEvent(event)) {
-      this._popupComponent.classList.add('visually-hidden');
-      this._body.classList.remove('hide-overflow');
+      this._hidePopup();
       document.removeEventListener('keydown', this._handleClosePopup);
     }
   }
 
+  _handleWatchListClick() {
+    this._changeData(
+      Object.assign({},
+        this._film, {
+          status: {
+            isWatchList: !this._film.status.isWatchList,
+            isHistory: this._film.status.isHistory,
+            isFavorite: this._film.status.isFavorite,
+          },
+        },
+      ),
+    );
+  }
+
+  _handleHistoryClick() {
+    this._changeData(
+      Object.assign({},
+        this._film, {
+          status: {
+            isWatchList: this._film.status.isWatchList,
+            isHistory: !this._film.status.isHistory,
+            isFavorite: this._film.status.isFavorite,
+          },
+        },
+      ),
+    );
+  }
+
+  _handleFavoriteClick() {
+    this._changeData(
+      Object.assign({},
+        this._film, {
+          status: {
+            isWatchList: this._film.status.isWatchList,
+            isHistory: this._film.status.isHistory,
+            isFavorite: !this._film.status.isFavorite,
+          },
+        },
+      ),
+    );
+  }
+
+  resetView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._hidePopup();
+    }
+  }
+
+  _hidePopup() {
+    this._popupComponent.getElement().classList.add('visually-hidden');
+    this._body.classList.remove('hide-overflow');
+
+    this._mode = Mode.DEFAULT;
+  }
+
+  _showPopup() {
+    this._popupComponent.getElement().classList.remove('visually-hidden');
+    this._body.classList.add('hide-overflow');
+
+    this._changeMode();
+    this._mode = Mode.SHOWING;
+  }
+
   _renderPopup() {
     render(this._body, this._popupComponent);
+    this._popupComponent.getElement().classList.add('visually-hidden');
+  }
 
-    this._filmComponent.setShowPopupHandler(this._handleShowPopup);
+  _renderFilmCard() {
+    render(this._filmsListContainer, this._filmComponent);
   }
 
   _renderFilm() {
-    render(this._filmsListContainer, this._filmComponent);
-
+    this._renderFilmCard();
     this._renderPopup();
   }
 }

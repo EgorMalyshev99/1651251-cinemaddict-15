@@ -25,6 +25,9 @@ import {
 import {
   getSomeItems
 } from '../utils/get-some-items';
+import {
+  nanoid
+} from 'nanoid';
 
 const MIN_COMMENTS = 0;
 const MAX_COMMENTS = 5;
@@ -83,6 +86,7 @@ const generateComments = () => {
 export const generateFilm = () => {
   const currentComments = generateComments();
   const film = {
+    id: nanoid(),
     name: getRandomItem(FILM_NAMES),
     altName: getRandomItem(FILM_NAMES),
     poster: getRandomItem(POSTER_PATHS),

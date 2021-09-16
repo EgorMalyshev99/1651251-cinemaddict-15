@@ -19,6 +19,14 @@ const createFilmCard = (film) => {
   let additionalLetter = '';
   film.commentsCount !== 1 ? additionalLetter = 's' : {};
 
+  const isActiveClass = (status) => {
+    if (status === true) {
+      return 'film-card__controls-item--active';
+    } else {
+      return '';
+    }
+  };
+
   return `<article class="film-card">
       <h3 class="film-card__title">${name}</h3>
       <p class="film-card__rating">${rating}</p>
@@ -31,9 +39,9 @@ const createFilmCard = (film) => {
       <p class="film-card__description">${description}</p>
       <a class="film-card__comments">${commentsCount} comment${additionalLetter}</a>
       <div class="film-card__controls">
-        <button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
-        <button class="film-card__controls-item film-card__controls-item--mark-as-watched" type="button">Mark as watched</button>
-        <button class="film-card__controls-item film-card__controls-item--favorite" type="button">Mark as favorite</button>
+        <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${isActiveClass(film.status.isWatchList)}" type="button">Add to watchlist</button>
+        <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${isActiveClass(film.status.isHistory)}" type="button">Mark as watched</button>
+        <button class="film-card__controls-item film-card__controls-item--favorite ${isActiveClass(film.status.isFavorite)}" type="button">Mark as favorite</button>
       </div>
     </article>`;
 };
@@ -42,22 +50,56 @@ export default class FilmCard extends AbstractView {
   constructor(film) {
     super();
     this._film = film;
-    this._clickHandler = this._clickHandler.bind(this);
+
+    this._watchListClickHandler = this._watchListClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
+    this._historyClickHandler = this._historyClickHandler.bind(this);
+    this._detailsClickHandler = this._detailsClickHandler.bind(this);
   }
 
   getTemplate() {
     return createFilmCard(this._film);
   }
 
-  _clickHandler(event) {
+  _detailsClickHandler(event) {
     event.preventDefault();
-    this._callback.click();
+    this._callback.detailsClick();
+  }
+
+  _watchListClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.watchListClick();
+  }
+
+  _historyClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.historyClick();
+  }
+
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
+  setWatchListClickHandler(callback) {
+    this._callback.watchListClick = callback;
+    this.getElement().querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this._watchListClickHandler);
+  }
+
+  setHistoryClickHandler(callback) {
+    this._callback.historyClick = callback;
+    this.getElement().querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this._historyClickHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector('.film-card__controls-item--favorite').addEventListener('click', this._favoriteClickHandler);
   }
 
   setShowPopupHandler(callback) {
-    this._callback.click = callback;
-    this.getElement().querySelector('.film-card__title').addEventListener('click', this._clickHandler);
-    this.getElement().querySelector('.film-card__poster').addEventListener('click', this._clickHandler);
-    this.getElement().querySelector('.film-card__comments').addEventListener('click', this._clickHandler);
+    this._callback.detailsClick = callback;
+    this.getElement().querySelector('.film-card__title').addEventListener('click', this._detailsClickHandler);
+    this.getElement().querySelector('.film-card__poster').addEventListener('click', this._detailsClickHandler);
+    this.getElement().querySelector('.film-card__comments').addEventListener('click', this._detailsClickHandler);
   }
 }

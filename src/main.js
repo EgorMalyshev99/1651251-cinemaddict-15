@@ -10,7 +10,7 @@ import StatsView from './view/stats.js';
 import FilmsPresenter from './presenter/movie-list.js';
 import FooterStatsView from './view/films-count.js';
 
-const NUMBER_OF_FILMS = 0;
+const NUMBER_OF_FILMS = 20;
 
 const films = new Array(NUMBER_OF_FILMS).fill().map(generateFilm);
 

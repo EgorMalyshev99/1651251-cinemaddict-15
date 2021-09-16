@@ -12,11 +12,17 @@ import {
   RenderPoints
 } from '../utils/render.js';
 import {
-  listTitles
+  listTitles,
+  SortType
 } from '../data.js';
 import {
   updateItem
 } from '../utils/common.js';
+import {
+  sortFilmDate,
+  sortFilmRating
+  // sortFilmRating
+} from '../utils/film.js';
 
 const FILMS_COUNT_PER_STEP = 5;
 
@@ -25,6 +31,7 @@ export default class MovieList {
     this._boardContainer = boardContainer;
     this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
     this._filmPresenter = new Map;
+    this._currentSortType = SortType.DEFAULT;
 
     this._boardComponent = new FilmsView();
     this._sortComponent = new SortView();
@@ -37,10 +44,12 @@ export default class MovieList {
     this._handleFilmChange = this._handleFilmChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
   init(films) {
     this._boardFilms = films.slice();
+    this._sourcedBoardFilms = films.slice();
 
     this._renderBoard();
   }
@@ -57,11 +66,38 @@ export default class MovieList {
 
   _handleFilmChange(updatedFilm) {
     this._boardFilms = updateItem(this._boardFilms, updatedFilm);
+    this._sourcedBoardFilms = updateItem(this._sourcedBoardFilms, updatedFilm);
     this._filmPresenter.get(updatedFilm.id).init(updatedFilm);
+  }
+
+  _sortFilms(sortType) {
+    switch (sortType) {
+      case SortType.DATE:
+        this._boardFilms.sort(sortFilmDate);
+        break;
+      case SortType.RATING:
+        this._boardFilms.sort(sortFilmRating);
+        break;
+      default:
+        this._boardFilms = this._sourcedBoardFilmss.slice();
+    }
+
+    this._currentSortType = sortType;
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currentSortType === sortType) {
+      return;
+    }
+
+    this._sortFilms(sortType);
+    this._clearFilmsList();
+    this._renderFilmsList();
   }
 
   _renderSort() {
     render(this._boardContainer, this._sortComponent);
+    this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
   _renderFilmsListContainer() {
@@ -122,8 +158,8 @@ export default class MovieList {
   }
 
   _renderBoard() {
-    this._renderSort(); // Сортировка
     this._renderMenu(); // Меню
+    this._renderSort(); // Сортировка
 
     if (this._boardFilms.length === 0) {
       this._renderNoFilms();

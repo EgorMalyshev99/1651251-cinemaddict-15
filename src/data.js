@@ -115,6 +115,12 @@ const listTitles = {
   COMMENT: 'Most commented',
 };
 
+const SortType = {
+  DEFAULT: 'default',
+  DATE: 'date',
+  RATING: 'rating',
+};
+
 export {
   listTitles,
   FILM_NAMES,
@@ -128,5 +134,6 @@ export {
   DIRECTORS,
   COUNTRY,
   WRITERS,
-  ACTORS
+  ACTORS,
+  SortType
 };

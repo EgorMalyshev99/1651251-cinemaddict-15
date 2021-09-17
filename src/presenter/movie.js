@@ -50,7 +50,6 @@ export default class Movie {
     this._popupComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._popupComponent.setHistoryClickHandler(this._handleHistoryClick);
     this._popupComponent.setClosePopupHandler(this._handleClosePopup);
-    document.addEventListener('keydown', this._handleEscPopup);
 
     if (prevFilmComponent === null || prevPopupComponent === null) {
       this._renderFilm();
@@ -63,6 +62,9 @@ export default class Movie {
 
     if (this._body.contains(prevPopupComponent.getElement())) {
       replace(this._popupComponent, prevPopupComponent);
+      if (this._mode === Mode.SHOWING) {
+        this._popupComponent.getElement().classList.remove('visually-hidden');
+      }
     }
 
     remove(prevFilmComponent);
@@ -86,7 +88,6 @@ export default class Movie {
   _handleEscPopup(event) {
     if (isEscEvent(event)) {
       this._hidePopup();
-      document.removeEventListener('keydown', this._handleClosePopup);
     }
   }
 
@@ -135,27 +136,29 @@ export default class Movie {
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
       this._hidePopup();
+      this._body.classList.add('hide-overflow');
     }
-  }
-
-  _hidePopup() {
-    this._popupComponent.getElement().classList.add('visually-hidden');
-    this._body.classList.remove('hide-overflow');
-
-    this._mode = Mode.DEFAULT;
   }
 
   _showPopup() {
     this._popupComponent.getElement().classList.remove('visually-hidden');
     this._body.classList.add('hide-overflow');
+    document.addEventListener('keydown', this._handleEscPopup);
 
     this._changeMode();
     this._mode = Mode.SHOWING;
   }
 
+  _hidePopup() {
+    this._popupComponent.getElement().classList.add('visually-hidden');
+    this._body.classList.remove('hide-overflow');
+    document.removeEventListener('keydown', this._handleEscPopup);
+
+    this._mode = Mode.DEFAULT;
+  }
+
   _renderPopup() {
     render(this._body, this._popupComponent);
-    this._popupComponent.getElement().classList.add('visually-hidden');
   }
 
   _renderFilmCard() {

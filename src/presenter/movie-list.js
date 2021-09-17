@@ -79,7 +79,7 @@ export default class MovieList {
         this._boardFilms.sort(sortFilmRating);
         break;
       default:
-        this._boardFilms = this._sourcedBoardFilmss.slice();
+        this._boardFilms = this._sourcedBoardFilms.slice();
     }
 
     this._currentSortType = sortType;

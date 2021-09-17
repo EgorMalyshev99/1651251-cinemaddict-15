@@ -30,7 +30,7 @@ export default class Movie {
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleShowPopup = this._handleShowPopup.bind(this);
     this._handleClosePopup = this._handleClosePopup.bind(this);
-    this._handeleEscPopup = this._handeleEscPopup.bind(this);
+    this._handleEscPopup = this._handleEscPopup.bind(this);
   }
 
   init(film) {
@@ -50,7 +50,7 @@ export default class Movie {
     this._popupComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._popupComponent.setHistoryClickHandler(this._handleHistoryClick);
     this._popupComponent.setClosePopupHandler(this._handleClosePopup);
-    document.addEventListener('keydown', this._handleClosePopup);
+    document.addEventListener('keydown', this._handleEscPopup);
 
     if (prevFilmComponent === null || prevPopupComponent === null) {
       this._renderFilm();
@@ -83,7 +83,7 @@ export default class Movie {
     this._popupComponent.getElement().querySelector('.film-details__close-btn').removeEventListener('click', this._handleClosePopup);
   }
 
-  _handeleEscPopup(event) {
+  _handleEscPopup(event) {
     if (isEscEvent(event)) {
       this._hidePopup();
       document.removeEventListener('keydown', this._handleClosePopup);

@@ -19,13 +19,7 @@ const createFilmCard = (film) => {
   let additionalLetter = '';
   film.commentsCount !== 1 ? additionalLetter = 's' : {};
 
-  const isActiveClass = (status) => {
-    if (status === true) {
-      return 'film-card__controls-item--active';
-    } else {
-      return '';
-    }
-  };
+  const isActiveClass = (status) => status === true ? 'film-card__controls-item--active' : '';
 
   return `<article class="film-card">
       <h3 class="film-card__title">${name}</h3>

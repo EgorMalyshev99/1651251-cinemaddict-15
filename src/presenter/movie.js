@@ -56,15 +56,13 @@ export default class Movie {
       return;
     }
 
-    if (this._filmsListContainer.getElement().contains(prevFilmComponent.getElement())) {
+    if (this._mode === Mode.DEFAULT) {
       replace(this._filmComponent, prevFilmComponent);
     }
 
-    if (this._body.contains(prevPopupComponent.getElement())) {
+    if (this._mode === Mode.SHOWING) {
+      replace(this._filmComponent, prevFilmComponent);
       replace(this._popupComponent, prevPopupComponent);
-      if (this._mode === Mode.SHOWING) {
-        this._popupComponent.getElement().classList.remove('visually-hidden');
-      }
     }
 
     remove(prevFilmComponent);
@@ -141,6 +139,7 @@ export default class Movie {
   }
 
   _showPopup() {
+    this._renderPopup();
     this._popupComponent.getElement().classList.remove('visually-hidden');
     this._body.classList.add('hide-overflow');
     document.addEventListener('keydown', this._handleEscPopup);
@@ -150,8 +149,9 @@ export default class Movie {
   }
 
   _hidePopup() {
-    this._popupComponent.getElement().classList.add('visually-hidden');
+    remove(this._popupComponent);
     this._body.classList.remove('hide-overflow');
+    this._popupComponent.reset(this._film);
     document.removeEventListener('keydown', this._handleEscPopup);
 
     this._mode = Mode.DEFAULT;
@@ -167,6 +167,5 @@ export default class Movie {
 
   _renderFilm() {
     this._renderFilmCard();
-    this._renderPopup();
   }
 }

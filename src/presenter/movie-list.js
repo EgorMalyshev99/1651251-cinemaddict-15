@@ -38,13 +38,10 @@ export default class MovieList {
     this._filmsListContainerComponent = new FilmsListContainerView();
     this._moreButtonComponent = new LoadMoreButtonView();
 
-    this._handleViewAction = this._handleViewAction.bind(this);
-    this._handleModelEvent = this._handleModelEvent.bind(this);
+    this._handleFilmChange = this._handleFilmChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
-    this._tasksModel.addObserver(this._handleModelEvent);
   }
 
   init() {
@@ -72,25 +69,7 @@ export default class MovieList {
     });
   }
 
-  _handleViewAction(actionType, updateType, update) {
-    console.log(actionType, updateType, update);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
-  }
-
-  _handleModelEvent(updateType, data) {
-    console.log(updateType, data);
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
-  }
-
   _handleFilmChange(updatedFilm) {
-    // Здесь будем вызывать обновление модели
-
     this._filmPresenter.get(updatedFilm.id).init(updatedFilm);
   }
 
@@ -116,7 +95,7 @@ export default class MovieList {
   }
 
   _renderFilm(film) {
-    const filmPresenter = new FilmPresenter(this._filmsListContainerComponent, this._handleViewAction, this._handleModeChange);
+    const filmPresenter = new FilmPresenter(this._filmsListContainerComponent, this._handleFilmChange, this._handleModeChange);
     filmPresenter.init(film);
     this._filmPresenter.set(film.id, filmPresenter);
   }
@@ -164,15 +143,15 @@ export default class MovieList {
   }
 
   _renderLoadMoreButton() {
-    render(this._filmsListComponent, this._moreButtonComponent); // Добавляем кнопку "Показать еще" в главный список
+    render(this._filmsListComponent, this._moreButtonComponent);
     this._moreButtonComponent.setClickHandler(this._handleMoreButtonClick);
   }
 
   _renderBoard() {
     const filmsCount = this._getFilms().length;
 
-    this._renderMenu(); // Меню
-    this._renderSort(); // Сортировка
+    this._renderMenu();
+    this._renderSort();
 
     if (filmsCount === 0) {
       this._renderNoFilms();

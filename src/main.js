@@ -18,7 +18,6 @@ const films = new Array(NUMBER_OF_FILMS).fill().map(generateFilm);
 const filmsModel = new FilmsModel();
 filmsModel.setFilms(films);
 
-// const body = document.querySelector('body');
 const header = document.querySelector('.header');
 const main = document.querySelector('.main');
 const footerStats = document.querySelector('.footer__statistics');
@@ -27,10 +26,9 @@ const {
   AFTERBEGIN,
 } = RenderPoints;
 
-render(header, new StatsView()); // Имя профиля
+render(header, new StatsView());
 
-// Отрисовка всех фильмов
 const filmsPresenter = new FilmsPresenter(main, filmsModel);
 filmsPresenter.init();
 
-render(footerStats, new FooterStatsView(films.length), AFTERBEGIN); // Количество фильмов
+render(footerStats, new FooterStatsView(films.length), AFTERBEGIN);

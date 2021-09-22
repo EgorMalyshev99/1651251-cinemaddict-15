@@ -12,7 +12,7 @@ import {
   NAMES,
   POSTER_PATHS,
   WRITERS
-} from '../data';
+} from '../const';
 import {
   getRandomInteger
 } from '../utils/get-random-integer';

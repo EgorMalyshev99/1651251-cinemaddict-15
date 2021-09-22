@@ -121,6 +121,20 @@ const SortType = {
   RATING: 'rating',
 };
 
+const FilterType = {
+  ALL: 'all',
+  WATCHLIST: 'watchlist',
+  HISTORY: 'watched',
+  FAVORITES: 'favorites',
+};
+
+const UpdateType = {
+  CARD: 'Card',
+  FILMS: 'Films',
+  POPUP: 'Popup',
+  FILTER: 'Filter',
+};
+
 export {
   listTitles,
   FILM_NAMES,
@@ -135,5 +149,7 @@ export {
   COUNTRY,
   WRITERS,
   ACTORS,
-  SortType
+  SortType,
+  FilterType,
+  UpdateType
 };

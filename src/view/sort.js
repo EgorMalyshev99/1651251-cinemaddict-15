@@ -1,7 +1,7 @@
 import AbstractView from './abstract';
 import {
   SortType
-} from '../data';
+} from '../const';
 
 const createSort = () => (
   `<ul class="sort">
@@ -26,6 +26,13 @@ export default class Sort extends AbstractView {
     if (evt.target.tagName !== 'A') {
       return;
     }
+
+    const allSortButtons = this.getElement().querySelectorAll('.sort__button');
+    allSortButtons.forEach((btn) => {
+      if (btn.classList.contains('sort__button--active')) {
+        btn.classList.remove('sort__button--active');
+      }
+    });
 
     evt.preventDefault();
     this._callback.sortTypeChange(evt.target.dataset.sortType);

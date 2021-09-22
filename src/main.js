@@ -1,6 +1,7 @@
 import {
   generateFilm
 } from './mock/film.js';
+import FilmsModel from './model/films.js';
 import {
   RenderPoints,
   render
@@ -13,7 +14,9 @@ import FooterStatsView from './view/films-count.js';
 const NUMBER_OF_FILMS = 20;
 
 const films = new Array(NUMBER_OF_FILMS).fill().map(generateFilm);
-console.log(films);
+
+const filmsModel = new FilmsModel();
+filmsModel.setFilms(films);
 
 // const body = document.querySelector('body');
 const header = document.querySelector('.header');
@@ -27,7 +30,7 @@ const {
 render(header, new StatsView()); // Имя профиля
 
 // Отрисовка всех фильмов
-const filmsPresenter = new FilmsPresenter(main);
-filmsPresenter.init(films);
+const filmsPresenter = new FilmsPresenter(main, filmsModel);
+filmsPresenter.init();
 
 render(footerStats, new FooterStatsView(films.length), AFTERBEGIN); // Количество фильмов

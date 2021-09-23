@@ -13,7 +13,9 @@ import {
 } from '../utils/render.js';
 import {
   listTitles,
-  SortType
+  SortType,
+  UpdateType,
+  UserAction
 } from '../const.js';
 import {
   sortFilmDate,
@@ -31,17 +33,22 @@ export default class MovieList {
     this._currentSortType = SortType.DEFAULT;
 
     this._boardComponent = new FilmsView();
-    this._sortComponent = new SortView();
     this._menuComponent = new MenuView();
     this._filmsListComponent = new FilmsListView(listTitles.ALL);
     this._noFilmsComponent = new NoFilmsView();
     this._filmsListContainerComponent = new FilmsListContainerView();
-    this._moreButtonComponent = new LoadMoreButtonView();
+    // this._sortComponent = new SortView();
+    this._sortComponent = null;
+    // this._moreButtonComponent = new LoadMoreButtonView();
+    this._moreButtonComponent = null;
 
-    this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._handleViewAction = this._handleViewAction.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+
+    this._filmsModel.addObserver(this._handleModelEvent);
   }
 
   init() {
@@ -69,8 +76,50 @@ export default class MovieList {
     });
   }
 
-  _handleFilmChange(updatedFilm) {
-    this._filmPresenter.get(updatedFilm.id).init(updatedFilm);
+  _handleViewAction(actionType, updateType, update) {
+    console.log(actionType, updateType, update);
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this._filmsModel.updateFilm(updateType, update);
+        break;
+      case UserAction.ADD_COMMENT:
+        this._filmsModel.addComment(updateType, update);
+        break;
+      case UserAction.DELETE_COMMENT:
+        this._filmsModel.deleteComment(updateType, update);
+        break;
+    }
+  }
+
+  _handleModelEvent(updateType, data) {
+    console.log(updateType, data);
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда задача ушла в архив)
+    // - обновить всю доску (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // - обновить часть списка (например, когда поменялось описание)
+        this._filmPresenter.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        // - обновить список (например, когда задача ушла в архив)
+        this._clearBoard();
+        this._renderFilmsList();
+        break;
+      case UpdateType.MAJOR:
+        // - обновить всю доску (например, при переключении фильтра)
+        this._clearBoard({
+          resetRenderedFilmsCount: true,
+          resetSortType: true,
+        });
+        this._renderBoard();
+        break;
+    }
   }
 
   _handleSortTypeChange(sortType) {
@@ -84,8 +133,14 @@ export default class MovieList {
   }
 
   _renderSort() {
-    render(this._boardContainer, this._sortComponent);
+    if (this._sortComponent !== null) {
+      this._sortComponent = null;
+    }
+
+    this._sortComponent = new SortView();
     this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
+
+    render(this._boardContainer, this._sortComponent);
   }
 
   _renderFilmsListContainer() {
@@ -95,12 +150,13 @@ export default class MovieList {
   }
 
   _renderFilm(film) {
-    const filmPresenter = new FilmPresenter(this._filmsListContainerComponent, this._handleFilmChange, this._handleModeChange);
+    const filmPresenter = new FilmPresenter(this._filmsListContainerComponent, this._handleViewAction, this._handleModeChange);
     filmPresenter.init(film);
     this._filmPresenter.set(film.id, filmPresenter);
   }
 
   _renderFilms(films) {
+    this._renderFilmsListContainer();
     films.forEach((film) => this._renderFilm(film));
   }
 
@@ -143,12 +199,46 @@ export default class MovieList {
   }
 
   _renderLoadMoreButton() {
-    render(this._filmsListComponent, this._moreButtonComponent);
+    if (this._moreButtonComponent !== null) {
+      this._moreButtonComponent = null;
+    }
+
+    this._moreButtonComponent = new LoadMoreButtonView();
     this._moreButtonComponent.setClickHandler(this._handleMoreButtonClick);
+
+    render(this._filmsListComponent, this._moreButtonComponent);
+  }
+
+  _clearBoard({
+    resetRenderedFilmsCount = false,
+    resetSortType = false,
+  } = {}) {
+    const filmsCount = this._getFilms().length;
+
+    this._filmPresenter.forEach((presenter) => presenter.destroy());
+    this._filmPresenter.clear();
+
+    remove(this._sortComponent);
+    remove(this._noFilmsComponent);
+    remove(this._moreButtonComponent);
+
+    if (resetRenderedFilmsCount) {
+      this._renderedFilmsCount = FILMS_COUNT_PER_STEP;
+    } else {
+      // На случай, если перерисовка доски вызвана
+      // уменьшением количества задач (например, удаление или перенос в архив)
+      // нужно скорректировать число показанных задач
+      this._renderedFilmsCount = Math.min(filmsCount, this._renderedFilmsCount);
+    }
+
+    if (resetSortType) {
+      this._currentSortType = SortType.DEFAULT;
+    }
   }
 
   _renderBoard() {
-    const filmsCount = this._getFilms().length;
+    const films = this._getFilms();
+    const filmsCount = films.length;
 
     this._renderMenu();
     this._renderSort();
@@ -157,6 +247,11 @@ export default class MovieList {
       this._renderNoFilms();
     }
 
-    this._renderFilmsList();
+    this._renderFilms(films.slice(0, Math.min(filmsCount, this._renderedFilmsCount)));
+    // this._renderFilmsList();
+
+    if (filmsCount > this._renderedFilmsCount) {
+      this._renderLoadMoreButton();
+    }
   }
 }

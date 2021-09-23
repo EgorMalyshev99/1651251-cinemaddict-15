@@ -15,7 +15,7 @@ export default class Films extends AbstractObserver {
   }
 
   updateFilm(updateType, update) {
-    const index = this._films.findIndex((task) => task.id === update.id);
+    const index = this._films.findIndex((film) => film.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting film');
@@ -28,5 +28,53 @@ export default class Films extends AbstractObserver {
     ];
 
     this._notify(updateType, update);
+  }
+
+  // addFilm(updateType, update) {
+  //   this._films = [
+  //     update,
+  //     ...this._films,
+  //   ];
+
+  //   this._notify(updateType, update);
+  // }
+
+  // deleteFilm(updateType, update) {
+  //   const index = this._films.findIndex((film) => film.id === update.id);
+
+  //   if (index === -1) {
+  //     throw new Error('Can\'t delete unexisting film');
+  //   }
+
+  //   this._films = [
+  //     ...this._films.slice(0, index),
+  //     ...this._films.slice(index + 1),
+  //   ];
+
+  //   this._notify(updateType);
+  // }
+
+  addComment(updateType, update) {
+    this._films.comments = [
+      update,
+      ...this._films.comments,
+    ];
+
+    this._notify(updateType, update);
+  }
+
+  deleteComment(updateType, update) {
+    const index = this._films.findIndex((film) => film.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting film');
+    }
+
+    this._films.comments = [
+      ...this._films.comments.slice(0, index),
+      ...this._films.comments.slice(index + 1),
+    ];
+
+    this._notify(updateType);
   }
 }

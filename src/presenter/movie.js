@@ -8,6 +8,10 @@ import {
   remove,
   replace
 } from '../utils/render';
+import {
+  UpdateType,
+  UserAction
+} from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -91,6 +95,8 @@ export default class Movie {
 
   _handleWatchListClick() {
     this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
       Object.assign({},
         this._film, {
           status: {
@@ -105,6 +111,8 @@ export default class Movie {
 
   _handleHistoryClick() {
     this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
       Object.assign({},
         this._film, {
           status: {
@@ -119,6 +127,8 @@ export default class Movie {
 
   _handleFavoriteClick() {
     this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
       Object.assign({},
         this._film, {
           status: {
@@ -131,6 +141,17 @@ export default class Movie {
     );
   }
 
+  // _handleFormSubmit(film) {
+  //   this._changeData(film);
+  //   this._changeData(
+  //     UserAction.UPDATE_FILM,
+  //     UpdateType.MINOR,
+  //     film,
+  //   );
+  //   // this._replaceFormToCard();
+  //   this._showPopup();
+  // }
+
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
       this._hidePopup();
@@ -140,7 +161,7 @@ export default class Movie {
 
   _showPopup() {
     this._renderPopup();
-    this._popupComponent.getElement().classList.remove('visually-hidden');
+    // this._popupComponent.getElement().classList.remove('visually-hidden');
     this._body.classList.add('hide-overflow');
     document.addEventListener('keydown', this._handleEscPopup);
 

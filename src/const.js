@@ -121,19 +121,31 @@ const SortType = {
   RATING: 'rating',
 };
 
-const FilterType = {
-  ALL: 'all',
-  WATCHLIST: 'watchlist',
-  HISTORY: 'watched',
-  FAVORITES: 'favorites',
+export const UserAction = {
+  UPDATE_FILM: 'UPDATE_FILM',
+  ADD_COMMENT: 'ADD_COMMENT',
+  DELETE_COMMENT: 'DELETE_COMMENT',
 };
 
-const UpdateType = {
-  CARD: 'Card',
-  FILMS: 'Films',
-  POPUP: 'Popup',
-  FILTER: 'Filter',
+export const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
 };
+
+// export const FilterType = {
+//   ALL: 'all',
+//   WATCHLIST: 'watchlist',
+//   HISTORY: 'watched',
+//   FAVORITES: 'favorites',
+// };
+
+// const UpdateType = {
+//   CARD: 'Card',
+//   FILMS: 'Films',
+//   POPUP: 'Popup',
+//   FILTER: 'Filter',
+// };
 
 export {
   listTitles,
@@ -149,7 +161,6 @@ export {
   COUNTRY,
   WRITERS,
   ACTORS,
-  SortType,
-  FilterType,
-  UpdateType
+  SortType
+  // FilterType,
 };

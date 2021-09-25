@@ -9,15 +9,17 @@ const createFilmCard = (film) => {
     genre,
     poster,
     description,
-    commentsCount,
+    comments,
   } = film;
+
+  const commentsCount = comments.length;
 
   let filmDescription = description;
 
   filmDescription.length >= 140 ? filmDescription = `${description.slice(0, 140)  }...` : {};
 
   let additionalLetter = '';
-  film.commentsCount !== 1 ? additionalLetter = 's' : {};
+  commentsCount !== 1 ? additionalLetter = 's' : {};
 
   const isActiveClass = (status) => status === true ? 'film-card__controls-item--active' : '';
 

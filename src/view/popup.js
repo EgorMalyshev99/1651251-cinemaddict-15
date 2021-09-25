@@ -1,18 +1,29 @@
+import {
+  isEnterEvent
+} from '../utils/check-events.js';
 import Smart from './smart.js';
 
 const createComments = (allComments) => {
   let markup = '';
   allComments.forEach((comment) => {
+    const {
+      id,
+      author,
+      text,
+      date,
+      emoji,
+    } = comment;
+
     markup += `<li class="film-details__comment">
       <span class="film-details__comment-emoji">
-        <img src="${comment.emoji}" width="55" height="55" alt="emoji">
+        <img src="${emoji}" width="55" height="55" alt="emoji">
       </span>
       <div>
-        <p class="film-details__comment-text">${comment.text}</p>
+        <p class="film-details__comment-text">${text}</p>
         <p class="film-details__comment-info">
-          <span class="film-details__comment-author">${comment.author}</span>
-          <span class="film-details__comment-day">${comment.date}</span>
-          <button class="film-details__comment-delete">Delete</button>
+          <span class="film-details__comment-author">${author}</span>
+          <span class="film-details__comment-day">${date}</span>
+          <button class="film-details__comment-delete" data-id="${id}">Delete</button>
         </p>
       </div>
     </li>`;
@@ -177,7 +188,10 @@ export default class Popup extends Smart {
     this._historyClickHandler = this._historyClickHandler.bind(this);
     this._closePopupHandler = this._closePopupHandler.bind(this);
     this._chooseEmojiClickHandler = this._chooseEmojiClickHandler.bind(this);
+    this._commentDeleteClickHandler = this._commentDeleteClickHandler.bind(this);
+    this._commentAddHandler = this._commentAddHandler.bind(this);
     this._commentTextInputHandler = this._commentTextInputHandler.bind(this);
+    this._currentScrollPosition = this._currentScrollPosition.bind(this);
     // / Bind handlers //
 
     this._setInnerHandlers();
@@ -201,17 +215,17 @@ export default class Popup extends Smart {
 
   _watchListClickHandler(evt) {
     evt.preventDefault();
-    this._callback.watchListClick();
+    this._callback.watchListClick(this._scrollPosition);
   }
 
   _historyClickHandler(evt) {
     evt.preventDefault();
-    this._callback.historyClick();
+    this._callback.historyClick(this._scrollPosition);
   }
 
   _favoriteClickHandler(evt) {
     evt.preventDefault();
-    this._callback.favoriteClick();
+    this._callback.favoriteClick(this._scrollPosition);
   }
 
   _chooseEmojiClickHandler(evt) {
@@ -222,11 +236,38 @@ export default class Popup extends Smart {
     });
   }
 
+  _commentDeleteClickHandler(evt) {
+    if (evt.target.tagName !== 'BUTTON') {
+      return;
+    }
+
+    evt.preventDefault();
+    this._callback.commentDeleteClick(evt.target.dataset.id, this._scrollPosition);
+  }
+
+  _commentAddHandler(evt) {
+    if (isEnterEvent(evt) || evt.ctrlKey) {
+      evt.preventDefault();
+      const newCommentText = this.getElement().querySelector('.film-details__comment-input').value;
+      if (this._data.emoji) {
+        this._callback.commentAdd(this._data.emoji, newCommentText, this._scrollPosition);
+      }
+    }
+  }
+
   _commentTextInputHandler(evt) {
     evt.preventDefault();
     this.updateData({
       commentText: evt.target.value,
     }, true);
+  }
+
+  _currentScrollPosition() {
+    this._scrollPosition = this.getElement().scrollTop;
+  }
+
+  setScrollPosition(position) {
+    this.getElement().scroll(0, position);
   }
   // / Handlers //
 
@@ -251,11 +292,24 @@ export default class Popup extends Smart {
     this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._closePopupHandler);
   }
 
+  setDeleteCommentHandler(callback) {
+    this._callback.commentDeleteClick = callback;
+    this.getElement().querySelectorAll('.film-details__comment-delete').forEach((btn) => {
+      btn.addEventListener('click', this._commentDeleteClickHandler);
+    });
+  }
+
+  setAddCommentHandler(callback) {
+    this._callback.commentAdd = callback;
+    this.getElement().querySelector('.film-details__new-comment').addEventListener('keydown', this._commentAddHandler);
+  }
+
   _setInnerHandlers() {
     this.getElement().querySelectorAll('.film-details__emoji-item').forEach((item) => {
       item.addEventListener('click', this._chooseEmojiClickHandler);
     });
     this.getElement().querySelector('.film-details__comment-input').addEventListener('input', this._commentTextInputHandler);
+    this.getElement().addEventListener('scroll', this._currentScrollPosition);
   }
   // / Set handlers //
 
@@ -266,6 +320,8 @@ export default class Popup extends Smart {
     this.setWatchListClickHandler(this._callback.watchListClick);
     this.setHistoryClickHandler(this._callback.historyClick);
     this.setFavoriteClickHandler(this._callback.favoriteClick);
+    this.setDeleteCommentHandler(this._callback.commentDeleteClick);
+    this.setAddCommentHandler(this._callback.commentAdd);
   }
   // / Restore handlers //
 

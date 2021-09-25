@@ -60,8 +60,9 @@ const generateDateOfRelease = () => {
 
 const generateFilmDuration = () => `${getRandomInteger(1,2)}h ${getRandomInteger(0, 60)}m`;
 
-const createComment = () => {
+export const createComment = () => {
   const comment = {
+    id: nanoid(),
     author: getRandomItem(NAMES),
     text: getRandomItem(COMMENTS),
     date: generateCommentDate(),
@@ -92,7 +93,6 @@ export const generateFilm = () => {
     poster: getRandomItem(POSTER_PATHS),
     description: getRandomItem(DESCRIPTIONS),
     comments: currentComments.comments,
-    commentsCount: currentComments.length,
     releaseDate: generateDateOfRelease(),
     rating: getRandomReal(1, 10, 1),
     duration: generateFilmDuration(),

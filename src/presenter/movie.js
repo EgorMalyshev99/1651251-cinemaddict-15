@@ -12,6 +12,10 @@ import {
   UpdateType,
   UserAction
 } from '../const.js';
+import {
+  createComment
+} from '../mock/film.js';
+import he from 'he';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -35,6 +39,8 @@ export default class Movie {
     this._handleShowPopup = this._handleShowPopup.bind(this);
     this._handleClosePopup = this._handleClosePopup.bind(this);
     this._handleEscPopup = this._handleEscPopup.bind(this);
+    this._handleDeleteComment = this._handleDeleteComment.bind(this);
+    this._handleAddComment = this._handleAddComment.bind(this);
   }
 
   init(film) {
@@ -54,6 +60,8 @@ export default class Movie {
     this._popupComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._popupComponent.setHistoryClickHandler(this._handleHistoryClick);
     this._popupComponent.setClosePopupHandler(this._handleClosePopup);
+    this._popupComponent.setDeleteCommentHandler(this._handleDeleteComment);
+    this._popupComponent.setAddCommentHandler(this._handleAddComment);
 
     if (prevFilmComponent === null || prevPopupComponent === null) {
       this._renderFilm();
@@ -93,10 +101,10 @@ export default class Movie {
     }
   }
 
-  _handleWatchListClick() {
+  _handleWatchListClick(popupScroll = null) {
     this._changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       Object.assign({},
         this._film, {
           status: {
@@ -107,12 +115,16 @@ export default class Movie {
         },
       ),
     );
+
+    if (popupScroll !== null) {
+      this._popupComponent.setScrollPosition(popupScroll);
+    }
   }
 
-  _handleHistoryClick() {
+  _handleHistoryClick(popupScroll = null) {
     this._changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       Object.assign({},
         this._film, {
           status: {
@@ -123,12 +135,16 @@ export default class Movie {
         },
       ),
     );
+
+    if (popupScroll !== null) {
+      this._popupComponent.setScrollPosition(popupScroll);
+    }
   }
 
-  _handleFavoriteClick() {
+  _handleFavoriteClick(popupScroll = null) {
     this._changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       Object.assign({},
         this._film, {
           status: {
@@ -139,18 +155,50 @@ export default class Movie {
         },
       ),
     );
+
+    if (popupScroll !== null) {
+      this._popupComponent.setScrollPosition(popupScroll);
+    }
   }
 
-  // _handleFormSubmit(film) {
-  //   this._changeData(film);
-  //   this._changeData(
-  //     UserAction.UPDATE_FILM,
-  //     UpdateType.MINOR,
-  //     film,
-  //   );
-  //   // this._replaceFormToCard();
-  //   this._showPopup();
-  // }
+  _handleAddComment(emoji, text, popupScroll = null) {
+    const newComment = createComment();
+    newComment.emoji = emoji;
+    newComment.text = he.encode(text);
+
+    const newCommentsList = this._film.comments.slice();
+    newCommentsList.push(newComment);
+
+    this._changeData(
+      UserAction.ADD_COMMENT,
+      UpdateType.PATCH,
+      Object.assign({},
+        this._film, {
+          comments: newCommentsList,
+        },
+      ),
+    );
+
+    if (popupScroll !== null) {
+      this._popupComponent.setScrollPosition(popupScroll);
+    }
+  }
+
+  _handleDeleteComment(id, popupScroll = null) {
+    this._changeData(
+      UserAction.DELETE_COMMENT,
+      UpdateType.PATCH,
+      Object.assign({},
+        this._film, {
+          comments: this._film.comments.filter((comment) => comment.id !== id),
+        },
+      ),
+    );
+
+    if (popupScroll !== null) {
+      this._popupComponent.setScrollPosition(popupScroll);
+    }
+  }
 
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
@@ -161,7 +209,6 @@ export default class Movie {
 
   _showPopup() {
     this._renderPopup();
-    // this._popupComponent.getElement().classList.remove('visually-hidden');
     this._body.classList.add('hide-overflow');
     document.addEventListener('keydown', this._handleEscPopup);
 

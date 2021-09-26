@@ -1192,3 +1192,9 @@ button {
   padding-top: 50px;
   padding-bottom: 50px;
 }
+
+.disabled,
+.main-navigation__item--active {
+  pointer-events: none;
+  cursor: default;
+}

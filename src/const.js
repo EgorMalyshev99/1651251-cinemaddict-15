@@ -145,6 +145,16 @@ const MenuItem = {
   STATS: 'STATS',
 };
 
+const SortStatisticType = {
+  ALL_TIME: 'statistic-all-time',
+  TODAY: 'statistic-today',
+  WEEK: 'statistic-week',
+  MONTH: 'statistic-month',
+  YEAR: 'statistic-year',
+};
+
+const minutesInHour = 60;
+
 export {
   listTitles,
   FILM_NAMES,
@@ -163,5 +173,7 @@ export {
   UserAction,
   UpdateType,
   FilterType,
-  MenuItem
+  MenuItem,
+  SortStatisticType,
+  minutesInHour
 };

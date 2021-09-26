@@ -102,62 +102,110 @@ export default class Movie {
   }
 
   _handleWatchListClick(popupScroll = null) {
-    this._changeData(
-      UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
-      Object.assign({},
-        this._film, {
-          status: {
-            isWatchList: !this._film.status.isWatchList,
-            isHistory: this._film.status.isHistory,
-            isFavorite: this._film.status.isFavorite,
+    if (this._mode === Mode.DEFAULT) {
+      this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign({},
+          this._film, {
+            status: {
+              isWatchList: !this._film.status.isWatchList,
+              isHistory: this._film.status.isHistory,
+              isFavorite: this._film.status.isFavorite,
+            },
           },
-        },
-      ),
-    );
+        ),
+      );
+    } else {
+      this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.PATCH,
+        Object.assign({},
+          this._film, {
+            status: {
+              isWatchList: !this._film.status.isWatchList,
+              isHistory: this._film.status.isHistory,
+              isFavorite: this._film.status.isFavorite,
+            },
+          },
+        ),
+      );
 
-    if (popupScroll !== null) {
-      this._popupComponent.setScrollPosition(popupScroll);
+      if (popupScroll !== null) {
+        this._popupComponent.setScrollPosition(popupScroll);
+      }
     }
   }
 
   _handleHistoryClick(popupScroll = null) {
-    this._changeData(
-      UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
-      Object.assign({},
-        this._film, {
-          status: {
-            isWatchList: this._film.status.isWatchList,
-            isHistory: !this._film.status.isHistory,
-            isFavorite: this._film.status.isFavorite,
+    if (this._mode === Mode.DEFAULT) {
+      this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign({},
+          this._film, {
+            status: {
+              isWatchList: this._film.status.isWatchList,
+              isHistory: !this._film.status.isHistory,
+              isFavorite: this._film.status.isFavorite,
+            },
           },
-        },
-      ),
-    );
+        ),
+      );
+    } else {
+      this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.PATCH,
+        Object.assign({},
+          this._film, {
+            status: {
+              isWatchList: this._film.status.isWatchList,
+              isHistory: !this._film.status.isHistory,
+              isFavorite: this._film.status.isFavorite,
+            },
+          },
+        ),
+      );
 
-    if (popupScroll !== null) {
-      this._popupComponent.setScrollPosition(popupScroll);
+      if (popupScroll !== null) {
+        this._popupComponent.setScrollPosition(popupScroll);
+      }
     }
   }
 
   _handleFavoriteClick(popupScroll = null) {
-    this._changeData(
-      UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
-      Object.assign({},
-        this._film, {
-          status: {
-            isWatchList: this._film.status.isWatchList,
-            isHistory: this._film.status.isHistory,
-            isFavorite: !this._film.status.isFavorite,
+    if (this._mode === Mode.DEFAULT) {
+      this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign({},
+          this._film, {
+            status: {
+              isWatchList: this._film.status.isWatchList,
+              isHistory: this._film.status.isHistory,
+              isFavorite: !this._film.status.isFavorite,
+            },
           },
-        },
-      ),
-    );
+        ),
+      );
+    } else {
+      this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.PATCH,
+        Object.assign({},
+          this._film, {
+            status: {
+              isWatchList: this._film.status.isWatchList,
+              isHistory: this._film.status.isHistory,
+              isFavorite: !this._film.status.isFavorite,
+            },
+          },
+        ),
+      );
 
-    if (popupScroll !== null) {
-      this._popupComponent.setScrollPosition(popupScroll);
+      if (popupScroll !== null) {
+        this._popupComponent.setScrollPosition(popupScroll);
+      }
     }
   }
 

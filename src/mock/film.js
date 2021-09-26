@@ -96,7 +96,7 @@ export const generateFilm = () => {
     releaseDate: generateDateOfRelease(),
     rating: getRandomReal(1, 10, 1),
     duration: generateFilmDuration(),
-    genre: getRandomItem(GENRES),
+    genres: getSomeItems(GENRES, getRandomInteger(1, 3)),
     ageLimit: getRandomItem(AGE_LIMIT),
     director: getRandomItem(DIRECTORS),
     writers: getSomeItems(WRITERS, getRandomInteger(1, 3)),

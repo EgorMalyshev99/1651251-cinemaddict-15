@@ -48,13 +48,26 @@ export default class MovieList {
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleMoreButtonClick = this._handleMoreButtonClick.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
-    this._filmsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
   }
 
   init() {
+    this._filmsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
     this._renderBoard();
+  }
+
+  destroy() {
+    this._clearBoard({
+      resetRenderedFilmsCount: true,
+      resetSortType: true,
+    });
+
+    remove(this._boardComponent);
+    remove(this._filmsListComponent);
+    remove(this._filmsListContainerComponent);
+
+    this._filmsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
   }
 
   _getFilms() {
@@ -64,10 +77,8 @@ export default class MovieList {
 
     switch (this._currentSortType) {
       case SortType.DATE:
-        // return this._filmsModel.getFilms().slice().sort(sortFilmDate);
         return filtredFilms.sort(sortFilmDate);
       case SortType.RATING:
-        // return this._filmsModel.getFilms().slice().sort(sortFilmRating);
         return filtredFilms.sort(sortFilmRating);
     }
 
@@ -81,21 +92,14 @@ export default class MovieList {
   }
 
   _handleViewAction(actionType, updateType, update) {
-    // console.log(actionType, updateType, update);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         this._filmsModel.updateFilm(updateType, update);
         break;
       case UserAction.ADD_COMMENT:
-        // this._filmsModel.addComment(updateType, update);
         this._filmsModel.updateFilm(updateType, update);
         break;
       case UserAction.DELETE_COMMENT:
-        // this._filmsModel.deleteComment(updateType, update);
         this._filmsModel.updateFilm(updateType, update);
         break;
     }
@@ -107,8 +111,8 @@ export default class MovieList {
         this._filmPresenter.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this._clearFilmsList();
-        this._renderFilmsList();
+        this._clearBoard();
+        this._renderBoard();
         break;
       case UpdateType.MAJOR:
         this._clearBoard({
@@ -141,16 +145,6 @@ export default class MovieList {
     render(this._boardContainer, this._sortComponent);
   }
 
-  _renderFilmsListContainer() {
-    render(this._boardComponent, this._filmsListComponent);
-    render(this._filmsListComponent, this._filmsListContainerComponent);
-  }
-
-  _removeFilmListContainer() {
-    remove(this._filmsListComponent);
-    remove(this._filmsListContainerComponent);
-  }
-
   _renderFilm(film) {
     const filmPresenter = new FilmPresenter(this._filmsListContainerComponent, this._handleViewAction, this._handleModeChange);
     filmPresenter.init(film);
@@ -165,7 +159,8 @@ export default class MovieList {
     const filmsCount = this._getFilms().length;
     const films = this._getFilms().slice(0, Math.min(filmsCount, FILMS_COUNT_PER_STEP));
 
-    this._renderFilmsListContainer();
+    render(this._boardComponent, this._filmsListComponent);
+    render(this._filmsListComponent, this._filmsListContainerComponent);
     this._renderFilms(films);
 
     if (filmsCount > FILMS_COUNT_PER_STEP) {
@@ -222,7 +217,8 @@ export default class MovieList {
 
     remove(this._sortComponent);
     remove(this._moreButtonComponent);
-    this._removeFilmListContainer();
+    remove(this._filmsListComponent);
+    remove(this._filmsListContainerComponent);
 
     if (this._noFilmsComponent) {
       remove(this._noFilmsComponent);
@@ -243,15 +239,15 @@ export default class MovieList {
     const films = this._getFilms();
     const filmsCount = films.length;
 
-    this._renderSort();
-    render(this._boardContainer, this._boardComponent);
-
     if (filmsCount === 0) {
       this._renderNoFilms();
       return;
     }
 
-    this._renderFilmsListContainer();
+    this._renderSort();
+    render(this._boardContainer, this._boardComponent);
+    render(this._boardComponent, this._filmsListComponent);
+    render(this._filmsListComponent, this._filmsListContainerComponent);
     this._renderFilms(films.slice(0, Math.min(filmsCount, this._renderedFilmsCount)));
 
     if (filmsCount > this._renderedFilmsCount) {

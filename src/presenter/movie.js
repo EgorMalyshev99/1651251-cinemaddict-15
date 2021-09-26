@@ -12,14 +12,23 @@ import {
   UpdateType,
   UserAction
 } from '../const.js';
-import {
-  createComment
-} from '../mock/film.js';
 import he from 'he';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
   SHOWING: 'SHOWING',
+};
+
+const createComment = () => {
+  const comment = {
+    id: null,
+    author: null,
+    text: null,
+    date: null,
+    emoji: null,
+  };
+
+  return comment;
 };
 
 export default class Movie {

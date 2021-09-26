@@ -1,5 +1,5 @@
-import AbstractView from './abstract';
-import { MenuItem } from '../const';
+import AbstractView from './abstract.js';
+import { MenuItem } from '../const.js';
 
 const createStatsLink = (active) => (
   `<a href="#stats" class="main-navigation__additional ${(active === MenuItem.STATS) ? 'main-navigation__item--active' : ''}" data-menu="${MenuItem.STATS}">Stats</a>`
@@ -21,7 +21,7 @@ export default class StatsLink extends AbstractView {
     this._callback.menuChange(evt.target.dataset.menu);
   }
 
-  setMenuChangeHandler(callback) {
+  setMenuClickHandler(callback) {
     this._callback.menuChange = callback;
     this.getElement().addEventListener('click', this._menuChangeHandler);
   }

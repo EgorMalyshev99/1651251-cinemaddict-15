@@ -24,6 +24,14 @@ export default class Abstract {
     return this._element;
   }
 
+  getNewElement() {
+    if (!this._element) {
+      this._element = createElement(this.getNewTemplate());
+    }
+
+    return this._element;
+  }
+
   removeElement() {
     this._element = null;
   }

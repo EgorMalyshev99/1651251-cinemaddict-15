@@ -4,7 +4,7 @@ import {
 } from '../const';
 import AbstractView from './abstract';
 
-const createFilterItemTemplate = (filter, currentFilterType, currentScreen) => {
+const createFilterItemTemplate = (filter, currentFilterType) => {
   const {
     type,
     name,
@@ -20,9 +20,9 @@ const createFilterItemTemplate = (filter, currentFilterType, currentScreen) => {
   );
 };
 
-const createFilterTemplate = (filterItems, currentFilterType, currentScreen) => {
+const createFilterTemplate = (filterItems, currentFilterType) => {
   const filterItemsTemplate = filterItems
-    .map((filter) => createFilterItemTemplate(filter, currentFilterType, currentScreen))
+    .map((filter) => createFilterItemTemplate(filter, currentFilterType))
     .join('');
 
   return `<div class="main-navigation__items">
@@ -31,58 +31,33 @@ const createFilterTemplate = (filterItems, currentFilterType, currentScreen) => 
 };
 
 export default class SiteFilter extends AbstractView {
-  constructor(filters, currentFilterType, currentScreen) {
+  constructor(filters, currentFilterType) {
     super();
     this._filters = filters;
     this._currentFilter = currentFilterType;
-    this._currentScreen = currentScreen;
 
     this._filterTypeChangeHandler = this._filterTypeChangeHandler.bind(this);
     this._menuClickHandler = this._menuClickHandler.bind(this);
   }
 
   getTemplate() {
-    return createFilterTemplate(this._filters, this._currentFilter, this._currentScreen);
-  }
-
-  restoreHandlers() {
-    this.getElement()
-      .querySelectorAll('.main-navigation__item')
-      .forEach((item) => {
-        if (item.dataset.menu) {
-          if (this._activeScreen === MenuItem.MOVIES) {
-            item.addEventListener('click', this._filterTypeChangeHandler);
-            return;
-          }
-          item.addEventListener('click', this._menuClickHandler);
-          return;
-        }
-        item.addEventListener('click', this._filterTypeChangeHandler);
-      });
+    return createFilterTemplate(this._filters, this._currentFilter);
   }
 
   _filterTypeChangeHandler(evt) {
     evt.preventDefault();
 
-    this._callback.filterTypeChange(evt.target.dataset.value);
+    this._callback.filterTypeChange(evt.target.dataset.filter);
   }
 
   _menuClickHandler(evt) {
     evt.preventDefault();
-    this._callback.menuClick(evt.target.dataset.menu);
+    this._callback.menuClick(evt.target);
   }
 
   setFilterTypeChangeHandler(callback) {
     this._callback.filterTypeChange = callback;
     this.getElement().querySelectorAll('.main-navigation__item').forEach((item) => {
-      if (item.dataset.menu) {
-        if (this._activeScreen === MenuItem.MOVIES) {
-          item.addEventListener('click', this._filterTypeChangeHandler);
-          return;
-        }
-        item.addEventListener('click', this._menuClickHandler);
-        return;
-      }
       item.addEventListener('click', this._filterTypeChangeHandler);
     });
   }

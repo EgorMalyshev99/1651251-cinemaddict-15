@@ -1,6 +1,7 @@
 import FilmsView from '../view/lists-container.js';
 import FilmsListView from '../view/films-list.js';
 import NoFilmsView from '../view/no-films.js';
+import LoadingView from '../view/loading.js';
 import FilmsListContainerView from '../view/films-list-container.js';
 import FilmPresenter from './movie.js';
 import SortView from '../view/sort.js';
@@ -35,6 +36,7 @@ export default class MovieList {
     this._filmPresenter = new Map;
     this._filterType = FilterType.ALL;
     this._currentSortType = SortType.DEFAULT;
+    this._isLoading = true;
 
     this._boardComponent = new FilmsView();
     this._filmsListComponent = new FilmsListView(listTitles.ALL);
@@ -42,6 +44,7 @@ export default class MovieList {
     this._filmsListContainerComponent = new FilmsListContainerView();
     this._sortComponent = null;
     this._moreButtonComponent = null;
+    this._loadingComponent = new LoadingView();
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -121,6 +124,11 @@ export default class MovieList {
         });
         this._renderBoard();
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
+        this._renderBoard();
+        break;
     }
   }
 
@@ -143,6 +151,10 @@ export default class MovieList {
     this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
 
     render(this._boardContainer, this._sortComponent);
+  }
+
+  _renderLoading() {
+    render(this._boardContainer, this._loadingComponent);
   }
 
   _renderFilm(film) {
@@ -236,6 +248,11 @@ export default class MovieList {
   }
 
   _renderBoard() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
     const films = this._getFilms();
     const filmsCount = films.length;
 

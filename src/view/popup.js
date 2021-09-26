@@ -1,6 +1,8 @@
+import dayjs from 'dayjs';
 import {
   isEnterEvent
 } from '../utils/check-events.js';
+import { durationFilm } from '../utils/film.js';
 import Smart from './smart.js';
 
 const createComments = (allComments) => {
@@ -67,7 +69,7 @@ const createPopup = (data) => {
                   <div class="film-details__poster">
                     <img class="film-details__poster-img" src="${poster}" alt="">
 
-                    <p class="film-details__age">${ageLimit}</p>
+                    <p class="film-details__age">${ageLimit}+</p>
                   </div>
 
                   <div class="film-details__info">
@@ -97,11 +99,11 @@ const createPopup = (data) => {
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Release Date</td>
-                        <td class="film-details__cell">${releaseDate.fullDate}</td>
+                        <td class="film-details__cell">${dayjs(releaseDate).format('D MMMM YYYY')}</td>
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Runtime</td>
-                        <td class="film-details__cell">${duration}</td>
+                        <td class="film-details__cell">${durationFilm(duration)}</td>
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Country</td>
@@ -132,10 +134,10 @@ const createPopup = (data) => {
 
               <div class="film-details__bottom-container">
                 <section class="film-details__comments-wrap">
-                  <h3 class="film-details__comments-title">Comments: <span class="film-details__comments-count">${data.comments.length}</span></h3>
+                  <h3 class="film-details__comments-title">Comments: <span class="film-details__comments-count">${data.commentsId.length}</span></h3>
 
                   <ul class="film-details__comments-list">
-                    ${isComments ? createComments(data.comments) : ''}
+                    ${isComments ? createComments(data.commentsId) : ''}
                   </ul>
 
                   <div class="film-details__new-comment">
@@ -329,7 +331,7 @@ export default class Popup extends Smart {
   static parseFilmToData(film) {
     return Object.assign({},
       film, {
-        isComments: film.comments.length !== 0,
+        isComments: film.commentsId.length !== 0,
         isEmoji: film.emoji !== null,
         isCommentText: film.commentText !== null,
         emoji: '',

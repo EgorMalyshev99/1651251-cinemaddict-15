@@ -2,7 +2,7 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import SmartView from './smart.js';
 import { getGenreStat, getFavoriteGenre, filterStatistics } from '../utils/stats.js';
-import { FilterType, SortStatisticType, minutesInHour } from '../const.js';
+import { FilterType, SortStatisticType, MINUTES_IN_HOUR } from '../const.js';
 import { filter } from '../utils/filter';
 
 const renderGenreChart = (container, films) =>  {
@@ -81,8 +81,8 @@ const renderGenreChart = (container, films) =>  {
 const createStatisticsTemplate = (data, sort) => {
   const films = data;
   const durationInMinutes = films.reduce((total, element) =>  (total + element.duration), 0);
-  const durationInHours = Math.floor(durationInMinutes / minutesInHour);
-  const remainderInMinutes = durationInMinutes - (durationInHours * minutesInHour);
+  const durationInHours = Math.floor(durationInMinutes / MINUTES_IN_HOUR);
+  const remainderInMinutes = durationInMinutes - (durationInHours * MINUTES_IN_HOUR);
 
   const genreStat = getGenreStat(films);
   const favoriteGenre = getFavoriteGenre(genreStat);
@@ -127,10 +127,9 @@ const createStatisticsTemplate = (data, sort) => {
 };
 
 export default class Stats extends SmartView {
-  constructor(container, films) {
+  constructor(films) {
     super();
     this._films = films;
-    this._container = container;
     this._watchedFilm = this._getMovies();
     this._filtredFilm = this._getSortingMovies();
     this._activeSort = 'statistic-all-time';

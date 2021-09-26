@@ -2,6 +2,7 @@ import FilterView from '../view/filter.js';
 import {
   remove,
   render,
+  RenderPoints,
   replace
 } from '../utils/render.js';
 import {
@@ -11,7 +12,7 @@ import {
   FilterType,
   UpdateType
 } from '../const.js';
-import { RenderPoints } from '../utils/render.js';
+import { handleSiteMenuClick } from '../main.js';
 
 export default class Filter {
   constructor(filterContainer, filterModel, filmsModel) {
@@ -28,26 +29,21 @@ export default class Filter {
     this._filterModel.addObserver(this._handleModelEvent);
   }
 
-  init(currentScreen) {
+  init() {
     const filters = this._getFilters();
     const prevFilterComponent = this._filterComponent;
-    this._currentScreen = currentScreen;
 
-    this._filterComponent = new FilterView(filters, this._filterModel.getFilter(), this._currentScreen);
+    this._filterComponent = new FilterView(filters, this._filterModel.getFilter());
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
+    this._filterComponent.setMenuClickHandler(handleSiteMenuClick);
 
     if (prevFilterComponent === null) {
-      this._filterComponent.setMenuClickHandler(this._menuClickItem);
       render(this._filterContainer, this._filterComponent, RenderPoints.AFTERBEGIN);
       return;
     }
 
     replace(this._filterComponent, prevFilterComponent);
     remove(prevFilterComponent);
-  }
-
-  destroy() {
-    remove(this._filterComponent);
   }
 
   _handleModelEvent() {
@@ -60,10 +56,6 @@ export default class Filter {
     }
 
     this._filterModel.setFilter(UpdateType.MAJOR, filterType);
-  }
-
-  setMenuClickHandler(callback) {
-    this._menuClick = callback;
   }
 
   _getFilters() {

@@ -27,3 +27,17 @@ export const durationFilm = (duration = 0) => {
 
   return `${duration}m`;
 };
+
+export const getPopupData = (film, commentsList) => {
+  const filmCommentsId = film.commentsId;
+  const filmComments = [];
+  filmCommentsId.forEach((commentId) => {
+    commentsList.forEach((comment) => {
+      if (comment.id === commentId) {
+        filmComments.push(comment);
+      }
+    });
+  });
+
+  return [film, filmComments];
+};

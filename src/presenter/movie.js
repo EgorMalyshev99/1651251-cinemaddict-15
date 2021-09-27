@@ -13,6 +13,7 @@ import {
   UserAction
 } from '../const.js';
 import he from 'he';
+import { getPopupData } from '../utils/film.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -32,8 +33,9 @@ const createComment = () => {
 };
 
 export default class Movie {
-  constructor(filmsListContainer, changeData, changeMode) {
+  constructor(filmsListContainer, filmComments, changeData, changeMode) {
     this._filmsListContainer = filmsListContainer;
+    this._filmComments = filmComments;
     this._changeData = changeData;
     this._changeMode = changeMode;
     this._body = document.querySelector('body');
@@ -52,14 +54,15 @@ export default class Movie {
     this._handleAddComment = this._handleAddComment.bind(this);
   }
 
-  init(film) {
+  init(film, filmComments = this._filmComments) {
     this._film = film;
 
     const prevFilmComponent = this._filmComponent;
     const prevPopupComponent = this._popupComponent;
 
     this._filmComponent = new FilmCardView(film);
-    this._popupComponent = new PopupView(film);
+    this._filmPopupData = getPopupData(this._film, filmComments);
+    this._popupComponent = new PopupView(this._filmPopupData);
 
     this._filmComponent.setWatchListClickHandler(this._handleWatchListClick);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -93,6 +96,14 @@ export default class Movie {
   destroy() {
     remove(this._filmComponent);
     remove(this._popupComponent);
+  }
+
+  setDeletingComment() {
+    this._popupComponent.setDeletingCommentHandler();
+  }
+
+  setCancelDeleteComment() {
+    this._popupComponent.setAbortingDeleteCommentHandler();
   }
 
   _handleShowPopup() {
@@ -241,19 +252,23 @@ export default class Movie {
     }
   }
 
-  _handleDeleteComment(id, popupScroll = null) {
+  _handleDeleteComment(film, comment, popupScroll = null) {
     this._changeData(
       UserAction.DELETE_COMMENT,
-      UpdateType.PATCH,
-      Object.assign({},
-        this._film, {
-          comments: this._film.comments.filter((comment) => comment.id !== id),
-        },
-      ),
+      UpdateType.MINOR,
+      film,
+      comment,
+      popupScroll,
     );
 
     if (popupScroll !== null) {
       this._popupComponent.setScrollPosition(popupScroll);
+    }
+  }
+
+  setPopupScrollPosition(scrollPosition = 0) {
+    if (this._mode === 'EDITING') {
+      this._popupComponent.setScrollPosition(scrollPosition);
     }
   }
 

@@ -36,7 +36,7 @@ const menuContainer = menuContainerView.getElement();
 const statsLink = new StatsLinkView();
 render(menuContainer, statsLink);
 
-const filmsPresenter = new FilmsPresenter(main, filmsModel, filterModel);
+const filmsPresenter = new FilmsPresenter(main, filmsModel, filterModel, api);
 const filterPresenter = new FilterPresenter(menuContainer, filterModel, filmsModel);
 
 let statsComponent = null;
@@ -71,8 +71,23 @@ filterPresenter.init();
 
 api.getFilms()
   .then((films) => {
-    filmsModel.setFilms(UpdateType.INIT, films);
+    const commentsFromRequests = [];
+    const totalComments = [];
+
+    films.map((film) => {
+      commentsFromRequests.push(api.getCommentsByFilmId(film.id));
+    });
+
+    Promise.all(commentsFromRequests)
+      .then((allComments) => {
+        allComments.forEach((commentItem) => {
+          commentItem.forEach((comment) => {
+            totalComments.push(comment);
+          });
+        });
+        filmsModel.setFilms(UpdateType.INIT, films, totalComments);
+      });
   })
   .catch(() => {
-    filmsModel.setFilms(UpdateType.INIT, []);
+    filmsModel.setFilms(UpdateType.INIT, [], []);
   });

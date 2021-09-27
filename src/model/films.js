@@ -4,16 +4,22 @@ export default class Films extends AbstractObserver {
   constructor() {
     super();
     this._films = [];
+    this._comments = [];
   }
 
-  setFilms(updateType, films) {
+  setFilms(updateType, films, comments) {
     this._films = films.slice();
+    this._comments = comments.slice();
 
     this._notify(updateType);
   }
 
   getFilms() {
     return this._films;
+  }
+
+  getComments() {
+    return this._comments;
   }
 
   updateFilm(updateType, update) {
@@ -30,6 +36,65 @@ export default class Films extends AbstractObserver {
     ];
 
     this._notify(updateType, update);
+  }
+
+  addComment(updateType, updateFilm, updateComment) {
+    const index = this._films.findIndex((film) => film.id === updateFilm.id);
+    const newComment = updateComment[updateComment.length -1];
+    updateFilm.commentsId.push(newComment.id);
+    updateFilm.isCommentDisabled = false;
+
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting film');
+    }
+
+    this._films = [
+      ...this._films.slice(0, index),
+      updateFilm,
+      ...this._films.slice(index + 1),
+    ];
+
+    this._comments = [
+      ...this._comments,
+      newComment,
+    ];
+
+    this._notify(updateType, updateFilm, updateComment);
+  }
+
+  deleteComment(updateType, updateFilm, updateCommentId) {
+    const indexFilm = this._films.findIndex((card) => card.id === updateFilm.id);
+    let commentIdIndex = null;
+
+    if (indexFilm === -1) {
+      throw new Error('Can\'t delete unexisting comment');
+    }
+
+    updateFilm.commentsId.forEach((commentId, index) => {
+      if (commentId === updateCommentId) {
+        commentIdIndex = index;
+      }
+    });
+
+    updateFilm.commentsId = [
+      ...updateFilm.commentsId.slice(0, commentIdIndex),
+      ...updateFilm.commentsId.slice(commentIdIndex + 1),
+    ];
+
+    this._films = [
+      ...this._films.slice(0, indexFilm),
+      updateFilm,
+      ...this._films.slice(indexFilm + 1),
+    ];
+
+    const indexComment = this._comments.findIndex((comment) => comment.id === updateCommentId);
+
+    this._comments = [
+      ...this._comments.slice(0, indexComment),
+      ...this._comments.slice(indexComment + 1),
+    ];
+
+    this._notify(updateType, updateFilm);
   }
 
   static adaptFilmToClient(film) {
@@ -73,6 +138,7 @@ export default class Films extends AbstractObserver {
       {},
       film,
       {
+        'id': film.id,
         'film_info': {
           'poster': film.poster,
           'title': film.name,
@@ -82,7 +148,7 @@ export default class Films extends AbstractObserver {
           'writers': film.writers,
           'actors': film.actors,
           'release': {
-            'date': film.release instanceof Date ? film.release.toISOString() : null,
+            'date': film.releaseDate,
             'release_country': film.country,
           },
           'runtime': film.duration,
@@ -94,15 +160,15 @@ export default class Films extends AbstractObserver {
           'watchlist': film.status.isWatchList,
           'already_watched': film.status.isHistory,
           'favorite': film.status.isFavorite,
-          'watching_date': film.watchingDate instanceof Date ? film.watchingDate.toISOString() : null,
+          'watching_date': film.watchingDate,
         },
         'comments': film.commentsId,
       },
     );
 
     delete adaptedFilm.poster;
-    delete adaptedFilm.title;
-    delete adaptedFilm.originalTitle;
+    delete adaptedFilm.name;
+    delete adaptedFilm.altName;
     delete adaptedFilm.rating;
     delete adaptedFilm.director;
     delete adaptedFilm.writers;
@@ -117,38 +183,35 @@ export default class Films extends AbstractObserver {
     delete adaptedFilm.isInFavorites;
     delete adaptedFilm.watchingDate;
     delete adaptedFilm.commentsId;
-    delete adaptedFilm.isCommentDisabled;
-    delete adaptedFilm.isCommentDeleting;
-    delete adaptedFilm.commentDeleteId;
 
     return adaptedFilm;
   }
 
-  // static adaptCommentToClient(comment) {
-  //   const adaptedComment = Object.assign(
-  //     {},
-  //     comment,
-  //     {
-  //       message: comment['comment'],
-  //     },
-  //   );
+  static adaptCommentToClient(comment) {
+    const adaptedComment = Object.assign(
+      {},
+      comment,
+      {
+        message: comment['comment'],
+      },
+    );
 
-  //   delete adaptedComment['comment'];
+    delete adaptedComment['comment'];
 
-  //   return adaptedComment;
-  // }
+    return adaptedComment;
+  }
 
-  // static adaptCommentToServer(comment) {
-  //   const adaptedComment = Object.assign(
-  //     {},
-  //     comment,
-  //     {
-  //       'comment': comment.message,
-  //     },
-  //   );
+  static adaptCommentToServer(comment) {
+    const adaptedComment = Object.assign(
+      {},
+      comment,
+      {
+        'comment': comment.message,
+      },
+    );
 
-  //   delete adaptedComment.message;
+    delete adaptedComment.message;
 
-  //   return adaptedComment;
-  // }
+    return adaptedComment;
+  }
 }

@@ -4,6 +4,7 @@ import {
 } from '../utils/check-events.js';
 import { durationFilm } from '../utils/film.js';
 import Smart from './smart.js';
+import he from 'he';
 
 const createComments = (allComments) => {
   let markup = '';
@@ -11,17 +12,17 @@ const createComments = (allComments) => {
     const {
       id,
       author,
-      text,
+      message,
       date,
-      emoji,
+      emotion,
     } = comment;
 
-    markup += `<li class="film-details__comment">
+    markup += `<li id=${id} class="film-details__comment">
       <span class="film-details__comment-emoji">
-        <img src="${emoji}" width="55" height="55" alt="emoji">
+        <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji">
       </span>
       <div>
-        <p class="film-details__comment-text">${text}</p>
+        <p class="film-details__comment-text">${he.encode(message)}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
           <span class="film-details__comment-day">${date}</span>
@@ -49,11 +50,10 @@ const createPopup = (data) => {
     country,
     genres,
     description,
-    isComments,
     emoji,
     altText,
     commentText,
-  } = data;
+  } = data[0];
 
   const isActiveClass = (status) => status === true ? 'film-details__control-button--active' : '';
 
@@ -126,18 +126,18 @@ const createPopup = (data) => {
                 </div>
 
                 <section class="film-details__controls">
-                  <button type="button" class="film-details__control-button film-details__control-button--watchlist ${isActiveClass(data.status.isWatchList)}" id="watchlist" name="watchlist">Add to watchlist</button>
-                  <button type="button" class="film-details__control-button film-details__control-button--watched ${isActiveClass(data.status.isHistory)}" id="watched" name="watched">Already watched</button>
-                  <button type="button" class="film-details__control-button film-details__control-button--favorite ${isActiveClass(data.status.isFavorite)}" id="favorite" name="favorite">Add to favorites</button>
+                  <button type="button" class="film-details__control-button film-details__control-button--watchlist ${isActiveClass(data[0].status.isWatchList)}" id="watchlist" name="watchlist">Add to watchlist</button>
+                  <button type="button" class="film-details__control-button film-details__control-button--watched ${isActiveClass(data[0].status.isHistory)}" id="watched" name="watched">Already watched</button>
+                  <button type="button" class="film-details__control-button film-details__control-button--favorite ${isActiveClass(data[0].status.isFavorite)}" id="favorite" name="favorite">Add to favorites</button>
                 </section>
               </div>
 
               <div class="film-details__bottom-container">
                 <section class="film-details__comments-wrap">
-                  <h3 class="film-details__comments-title">Comments: <span class="film-details__comments-count">${data.commentsId.length}</span></h3>
+                  <h3 class="film-details__comments-title">Comments: <span class="film-details__comments-count">${data[0].commentsId.length}</span></h3>
 
                   <ul class="film-details__comments-list">
-                    ${isComments ? createComments(data.commentsId) : ''}
+                    ${createComments(data[1])}
                   </ul>
 
                   <div class="film-details__new-comment">
@@ -191,6 +191,7 @@ export default class Popup extends Smart {
     this._closePopupHandler = this._closePopupHandler.bind(this);
     this._chooseEmojiClickHandler = this._chooseEmojiClickHandler.bind(this);
     this._commentDeleteClickHandler = this._commentDeleteClickHandler.bind(this);
+    this._clickDeleteCommentHandler = this._clickDeleteCommentHandler.bind(this);
     this._commentAddHandler = this._commentAddHandler.bind(this);
     this._commentTextInputHandler = this._commentTextInputHandler.bind(this);
     this._currentScrollPosition = this._currentScrollPosition.bind(this);
@@ -244,7 +245,7 @@ export default class Popup extends Smart {
     }
 
     evt.preventDefault();
-    this._callback.commentDeleteClick(evt.target.dataset.id, this._scrollPosition);
+    this._callback.deletePopupComment(evt.target.dataset.id, this._scrollPosition);
   }
 
   _commentAddHandler(evt) {
@@ -295,15 +296,51 @@ export default class Popup extends Smart {
   }
 
   setDeleteCommentHandler(callback) {
-    this._callback.commentDeleteClick = callback;
-    this.getElement().querySelectorAll('.film-details__comment-delete').forEach((btn) => {
-      btn.addEventListener('click', this._commentDeleteClickHandler);
+    this._callback.deletePopupComment = callback;
+    this._commentsElements = this.getElement().querySelectorAll('.film-details__comment');
+    this._commentsElements.forEach((comment) => {
+      comment.addEventListener('click', this._clickDeleteCommentHandler);
     });
+  }
+
+  setDeletingCommentHandler() {
+    let commentButtonElement = null;
+
+    if (this._comment) {
+      commentButtonElement = this._comment.querySelector('.film-details__comment-delete');
+      commentButtonElement.textContent = 'Deleting';
+      commentButtonElement.disabled = true;
+    }
+  }
+
+  setAbortingDeleteCommentHandler() {
+    const commentButtonElement = this._comment.querySelector('.film-details__comment-delete');
+
+    commentButtonElement.textContent = 'Delete';
+    commentButtonElement.disabled = false;
   }
 
   setAddCommentHandler(callback) {
     this._callback.commentAdd = callback;
     this.getElement().querySelector('.film-details__new-comment').addEventListener('keydown', this._commentAddHandler);
+  }
+
+  _clickDeleteCommentHandler(evt) {
+    if (evt.target.tagName !== 'BUTTON') {
+      return;
+    }
+
+    evt.preventDefault();
+
+    this._comment = evt.target.closest('.film-details__comment');
+    this._commentId = this._comment.id;
+    const index = this._data[0].commentsId.findIndex((filmCommentId) => filmCommentId.toString() === this._commentId.toString());
+
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting commentsId');
+    }
+
+    this._callback.deletePopupComment(Popup.parseDataToFilm(this._data), this._commentId, this._scrollPosition);
   }
 
   _setInnerHandlers() {
@@ -312,6 +349,10 @@ export default class Popup extends Smart {
     });
     this.getElement().querySelector('.film-details__comment-input').addEventListener('input', this._commentTextInputHandler);
     this.getElement().addEventListener('scroll', this._currentScrollPosition);
+    this._comments = this.getElement().querySelectorAll('.film-details__comment');
+    this._comments.forEach((comment) => {
+      comment.addEventListener('click', this._clickDeleteCommentHandler);
+    });
   }
   // / Set handlers //
 
@@ -329,31 +370,27 @@ export default class Popup extends Smart {
 
   // Static methods //
   static parseFilmToData(film) {
-    return Object.assign({},
-      film, {
-        isComments: film.commentsId.length !== 0,
-        isEmoji: film.emoji !== null,
-        isCommentText: film.commentText !== null,
-        emoji: '',
-        altText: '',
-        commentText: '',
+    let filmInfo = film;
+
+    filmInfo = Object.assign(
+      {},
+      filmInfo,
+      {
+        commentEmoji: filmInfo.commentEmoji ? filmInfo.commentEmoji : '',
+        commentMessage: filmInfo.commentMessage ? filmInfo.commentMessage : '',
       },
     );
+
+    return filmInfo;
   }
 
-  static parseDataToFilm(data) {
-    data = Object.assign({},
-      data,
-    );
+  static parseDataToFilm(film) {
+    const filmInfo = film;
 
-    delete data.emoji;
-    delete data.altText;
-    delete data.commentText;
-    delete data.isEmoji;
-    delete data.isAltText;
-    delete data.isCommentText;
+    delete filmInfo.commentEmoji;
+    delete filmInfo.commentMessage;
 
-    return data;
+    return filmInfo;
   }
   // / Static methods //
 }

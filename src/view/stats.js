@@ -1,14 +1,24 @@
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import SmartView from './smart.js';
-import { getGenreStat, getFavoriteGenre, filterStatistics } from '../utils/stats.js';
-import { FilterType, SortStatisticType, MINUTES_IN_HOUR } from '../const.js';
-import { filter } from '../utils/filter';
+import {
+  getGenreStat,
+  getFavoriteGenre,
+  filterStatistics
+} from '../utils/stats.js';
+import {
+  FilterType,
+  SortStatisticType,
+  MINUTES_IN_HOUR
+} from '../const.js';
+import {
+  filter
+} from '../utils/filter';
 
-const renderGenreChart = (container, films) =>  {
+const renderGenreChart = (container, films) => {
   const genreStat = getGenreStat(films);
   const labelArray = Object.keys(genreStat).map((key) => {
-    if (genreStat[key] !== 0){
+    if (genreStat[key] !== 0) {
       return key;
     }
   });
@@ -80,7 +90,7 @@ const renderGenreChart = (container, films) =>  {
 
 const createStatisticsTemplate = (data, sort) => {
   const films = data;
-  const durationInMinutes = films.reduce((total, element) =>  (total + element.duration), 0);
+  const durationInMinutes = films.reduce((total, element) => (total + element.duration), 0);
   const durationInHours = Math.floor(durationInMinutes / MINUTES_IN_HOUR);
   const remainderInMinutes = durationInMinutes - (durationInHours * MINUTES_IN_HOUR);
 
@@ -158,11 +168,12 @@ export default class Stats extends SmartView {
   setFilterChangeStatistic() {
     this._radioCollection = this.getElement().querySelectorAll('.statistic__filters-input');
     this._radioCollection.forEach((sortItem) => {
-      sortItem.addEventListener('change', (e) => {
+      sortItem.addEventListener('change', (evt) => {
+        console.log('1');
         this._oldChecked = this.getElement().querySelector('.statistic__filters-input[checked]');
         this._oldChecked.removeAttribute('checked');
-        e.target.setAttribute('checked', 'checked');
-        e.target.checked = true;
+        evt.target.setAttribute('checked', 'checked');
+        evt.target.checked = true;
         this._filtredFilm = this._getSortingMovies();
         this._updateScreen();
       });

@@ -1,19 +1,28 @@
 import AbstractView from './abstract.js';
-import { MenuItem } from '../const.js';
+import {
+  MenuItem
+} from '../const.js';
 
-const createStatsLink = (active) => (
-  `<a href="#stats" class="main-navigation__additional ${(active === MenuItem.STATS) ? 'main-navigation__item--active' : ''}" data-menu="${MenuItem.STATS}">Stats</a>`
+const createStatsLink = () => (
+  `<a href="#stats" class="main-navigation__additional" data-menu="${MenuItem.STATS}">Stats</a>`
 );
 
 export default class StatsLink extends AbstractView {
-  constructor(active) {
+  constructor() {
     super();
-    this._active = active;
     this._menuChangeHandler = this._menuChangeHandler.bind(this);
   }
 
   getTemplate() {
     return createStatsLink(this._active);
+  }
+
+  checkActive(status) {
+    if (status === MenuItem.FILMS) {
+      this.getElement().classList.remove('main-navigation__item--active');
+      return;
+    }
+    this.getElement().classList.add('main-navigation__item--active');
   }
 
   _menuChangeHandler(evt) {

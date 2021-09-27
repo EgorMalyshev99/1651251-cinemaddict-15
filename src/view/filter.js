@@ -44,6 +44,24 @@ export default class SiteFilter extends AbstractView {
     return createFilterTemplate(this._filters, this._currentFilter);
   }
 
+  toggleActiveClass(status) {
+    if (status === MenuItem.STATS) {
+      this.getElement().querySelectorAll('.main-navigation__item').forEach((item, index) => {
+        item.classList.remove('main-navigation__item--active');
+        if (index !== 0) {
+          item.classList.add('disabled');
+        }
+      });
+      return;
+    }
+    this.getElement().querySelectorAll('.main-navigation__item').forEach((item, index) => {
+      item.classList.remove('disabled');
+      if (index === 0) {
+        item.classList.add('main-navigation__item--active');
+      }
+    });
+  }
+
   _filterTypeChangeHandler(evt) {
     evt.preventDefault();
 
@@ -52,7 +70,12 @@ export default class SiteFilter extends AbstractView {
 
   _menuClickHandler(evt) {
     evt.preventDefault();
-    this._callback.menuClick(evt.target);
+    this._callback.menuClick(evt.target.dataset.menu);
+  }
+
+  restoreHandlers() {
+    this.setFilterTypeChangeHandler(this.callback.filterTypeChange);
+    this.setMenuClickHandler(this.callback.menuClick);
   }
 
   setFilterTypeChangeHandler(callback) {
@@ -64,6 +87,8 @@ export default class SiteFilter extends AbstractView {
 
   setMenuClickHandler(callback) {
     this._callback.menuClick = callback;
-    this.getElement().addEventListener('click', this._menuClickHandler);
+    this.getElement().querySelectorAll('.main-navigation__item').forEach((item) => {
+      item.addEventListener('click', this._menuClickHandler);
+    });
   }
 }

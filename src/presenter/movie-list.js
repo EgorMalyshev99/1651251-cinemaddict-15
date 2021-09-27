@@ -6,6 +6,7 @@ import FilmsListContainerView from '../view/films-list-container.js';
 import FilmPresenter from './movie.js';
 import SortView from '../view/sort.js';
 import LoadMoreButtonView from '../view/more-button.js';
+import FooterStatsView from '../view/films-count.js';
 import {
   render,
   remove
@@ -24,6 +25,9 @@ import {
 import {
   filter
 } from '../utils/filter.js';
+import {
+  footerStats
+} from '../main.js';
 
 const FILMS_COUNT_PER_STEP = 5;
 
@@ -45,6 +49,7 @@ export default class MovieList {
     this._sortComponent = null;
     this._moreButtonComponent = null;
     this._loadingComponent = new LoadingView();
+    this._footerStatsComponent = null;
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -231,6 +236,7 @@ export default class MovieList {
     remove(this._moreButtonComponent);
     remove(this._filmsListComponent);
     remove(this._filmsListContainerComponent);
+    remove(this._footerStatsComponent);
 
     if (this._noFilmsComponent) {
       remove(this._noFilmsComponent);
@@ -270,5 +276,8 @@ export default class MovieList {
     if (filmsCount > this._renderedFilmsCount) {
       this._renderLoadMoreButton();
     }
+
+    this._footerStatsComponent = new FooterStatsView(films.length);
+    render(footerStats, this._footerStatsComponent);
   }
 }

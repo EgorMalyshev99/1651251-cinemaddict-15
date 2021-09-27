@@ -10,7 +10,10 @@ import MenuContainerView from './view/menu-container.js';
 import FilmsPresenter from './presenter/movie-list.js';
 import StatsLinkView from './view/stats-link.js';
 import StatsView from './view/stats.js';
-import { MenuItem, UpdateType } from './const.js';
+import {
+  MenuItem,
+  UpdateType
+} from './const.js';
 import Api from './api.js';
 
 const AUTHORIZATION = 'Basic h22sdasdSwcl34a2j';
@@ -24,6 +27,7 @@ const filterModel = new FilterModel();
 
 const header = document.querySelector('.header');
 const main = document.querySelector('.main');
+export const footerStats = document.querySelector('.footer__statistics');
 
 render(header, new ProfileView());
 const menuContainerView = new MenuContainerView();
@@ -40,13 +44,21 @@ let statsComponent = null;
 export const handleSiteMenuClick = (item) => {
   switch (item) {
     case MenuItem.FILMS:
-      filterPresenter.destroy();
+      filmsPresenter.destroy();
       filmsPresenter.init();
+      filterPresenter.checkLinks(item);
+      statsLink.checkActive(item);
       remove(statsComponent);
       break;
     case MenuItem.STATS:
       filmsPresenter.destroy();
+      if (statsComponent !== null) {
+        remove(statsComponent);
+      }
+      filterPresenter.checkLinks(item);
+      statsLink.checkActive(item);
       statsComponent = new StatsView(filmsModel.getFilms());
+      statsComponent.setFilterChangeStatistic();
       render(main, statsComponent);
       break;
   }
@@ -64,5 +76,3 @@ api.getFilms()
   .catch(() => {
     filmsModel.setFilms(UpdateType.INIT, []);
   });
-
-// render(footerStats, new FooterStatsLinkView(films.length), AFTERBEGIN);

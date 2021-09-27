@@ -143,7 +143,6 @@ export default class MovieList {
   }
 
   _handleModelEvent(updateType, data) {
-    const comments = this._getComments();
     switch (updateType) {
       case UpdateType.PATCH:
         this._filmPresenter.get(data.id).init(data);
@@ -178,7 +177,7 @@ export default class MovieList {
   }
 
   _setPopupScroll(updateFilm, scrollPosition) {
-    this._filmPresenter.get(updateFilm[0].id).setPopupScrollPosition(scrollPosition);
+    this._filmPresenter.get(updateFilm.id).setPopupScrollPosition(scrollPosition);
   }
 
   _renderSort() {

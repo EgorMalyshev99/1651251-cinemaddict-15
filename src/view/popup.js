@@ -184,7 +184,6 @@ export default class Popup extends Smart {
     super();
     this._data = Popup.parseFilmToData(film);
 
-    // Bind handlers //
     this._watchListClickHandler = this._watchListClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._historyClickHandler = this._historyClickHandler.bind(this);
@@ -194,8 +193,7 @@ export default class Popup extends Smart {
     this._clickDeleteCommentHandler = this._clickDeleteCommentHandler.bind(this);
     this._commentAddHandler = this._commentAddHandler.bind(this);
     this._commentTextInputHandler = this._commentTextInputHandler.bind(this);
-    this._currentScrollPosition = this._currentScrollPosition.bind(this);
-    // / Bind handlers //
+    this._scrollHandler = this._scrollHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -210,7 +208,6 @@ export default class Popup extends Smart {
     );
   }
 
-  // Handlers //
   _closePopupHandler(evt) {
     evt.preventDefault();
     this._callback.closePopupClick();
@@ -265,16 +262,15 @@ export default class Popup extends Smart {
     }, true);
   }
 
-  _currentScrollPosition() {
+  _scrollHandler(evt) {
+    evt.preventDefault();
     this._scrollPosition = this.getElement().scrollTop;
   }
 
   setScrollPosition(position) {
     this.getElement().scroll(0, position);
   }
-  // / Handlers //
 
-  // Set Handlers //
   setWatchListClickHandler(callback) {
     this._callback.watchListClick = callback;
     this.getElement().querySelector('.film-details__control-button--watchlist').addEventListener('click', this._watchListClickHandler);
@@ -348,15 +344,13 @@ export default class Popup extends Smart {
       item.addEventListener('click', this._chooseEmojiClickHandler);
     });
     this.getElement().querySelector('.film-details__comment-input').addEventListener('input', this._commentTextInputHandler);
-    this.getElement().addEventListener('scroll', this._currentScrollPosition);
+    this.getElement().addEventListener('scroll', this._scrollHandler);
     this._comments = this.getElement().querySelectorAll('.film-details__comment');
     this._comments.forEach((comment) => {
       comment.addEventListener('click', this._clickDeleteCommentHandler);
     });
   }
-  // / Set handlers //
 
-  // Restore handlers //
   restoreHandlers() {
     this._setInnerHandlers();
     this.setClosePopupHandler(this._callback.closePopupClick);
@@ -366,9 +360,7 @@ export default class Popup extends Smart {
     this.setDeleteCommentHandler(this._callback.commentDeleteClick);
     this.setAddCommentHandler(this._callback.commentAdd);
   }
-  // / Restore handlers //
 
-  // Static methods //
   static parseFilmToData(film) {
     let filmInfo = film;
 
@@ -392,5 +384,4 @@ export default class Popup extends Smart {
 
     return filmInfo;
   }
-  // / Static methods //
 }

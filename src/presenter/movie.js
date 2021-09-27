@@ -239,7 +239,7 @@ export default class Movie {
 
     this._changeData(
       UserAction.ADD_COMMENT,
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       Object.assign({},
         this._film, {
           comments: newCommentsList,
@@ -267,9 +267,7 @@ export default class Movie {
   }
 
   setPopupScrollPosition(scrollPosition = 0) {
-    if (this._mode === 'EDITING') {
-      this._popupComponent.setScrollPosition(scrollPosition);
-    }
+    this._filmPopupComponent.setScrollPosition(scrollPosition);
   }
 
   resetView() {
